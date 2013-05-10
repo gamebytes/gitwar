@@ -5,13 +5,13 @@ continue='Already up-to-date.'
 function submitTurn {
   echo 'Submitting game data...'
   git add gitwar.log &> /dev/null
-  git commit -m "Opponent took their turn" &> /dev/null
+  git commit -m "$1" &> /dev/null
   git push origin master &> /dev/null
 }
 
 function silentSubmit {
   git add gitwar.log &> /dev/null
-  git commit -m "Opponent took their turn" &> /dev/null
+  git commit -m "$1" &> /dev/null
   git push origin master &> /dev/null
 }
 
@@ -44,10 +44,10 @@ if [ "$1" = "-w" ]; then
 elif [ "$1" = "-c" ]; then
   reset
 elif [ "$1" = "-s" ]; then
-  silentSubmit
+  silentSubmit "$2"
 elif [ "$1" = "-p" ]; then
   silentPull
 else
-  submitTurn
+  submitTurn "$1"
   wait
 fi
