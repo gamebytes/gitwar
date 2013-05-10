@@ -124,7 +124,8 @@ function loop {
 
     attack=''
     while [[ "$attack" != "J" && "$attack" != "H" && "$attack" != "U" && "$attack" != "L" ]]; do
-      if [ -z "$attack" ]; then
+      if ! [ -z "$attack" ]; then
+        echo
         echo "Incorrect attack syntax. Please try again."
       fi
       echo "How would you like to attack?"
@@ -191,6 +192,10 @@ if ! [ -z "$justWent" ]; then
 else
   attack=''
   while [[ "$attack" != "J" && "$attack" != "H" && "$attack" != "U" && "$attack" != "L" ]]; do
+    if ! [ -z "$attack" ]; then
+      echo
+      echo "Incorrect attack syntax. Please try again."
+    fi
     echo "How would you like to attack?"
     echo "H - Haymaker, U - Uppercut"
     echo -n "L - Left Hook, J - Jab: "
