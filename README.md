@@ -1,4 +1,4 @@
-Gitwar
+Gitwar*
 ======
 
 A platform for git-based turn-based command-line games.
@@ -28,3 +28,9 @@ Have fun!
 
 ------
 http://tybenz.com
+
+*[Gitwar logo](http://thenounproject.com/noun/soldier/#icon-No1697) designed
+by [Simon Child](http://thenounproject.com/Simon Child) from the [Noun
+Project](http://thenounproject.com) and [Jason
+Long](http://twitter.com/jasonlong) from
+[git-scm.com](http://git-scm.com/downloads/logos).
