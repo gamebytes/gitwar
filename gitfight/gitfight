@@ -167,7 +167,6 @@ function loop {
 
     performAttack $attack
     echo "`date "+%Y-%m-%d %H:%M:%S %z"`,$me,$attack,$attackResult" >> gitwar.log
-    echo -n "$score" | sed "s/$opponent [0-9]*/$opponent $opponentScore/" > gitwar.score
     echo
 
 
@@ -256,26 +255,3 @@ else
 
   loop
 fi
-
-while [ 1 = 1 ]; do
-  echo -n ""
-done
-
-# function restoreState {
-  # Reading in gitwar.log
-  # sed 1d "$logfile" | while IFS=, read date uname action result; do
-  #   echo "$uname executed $action and got back $result at $date"
-  # done
-
-  # Reading in gitwar.score
-  # while IFS="\n" read line; do
-  #   echo "$line" | while IFS=" " read uname score; do
-  #     echo "$uname scored $score"
-  #   done
-  # done < gitwar.score
-# }
-
-# if [ "$length" -gt 2 ]; then
-  # restoreState
-# fi
-
