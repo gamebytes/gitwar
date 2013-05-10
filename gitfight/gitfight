@@ -202,7 +202,7 @@ if [ "$me" = "$user1" ]; then
 elif [ "$me" = "$user2" ]; then
   opponent="$user1"
 else
-  echo "You are not a player in this game. Check your git config for your 'user.name' setting. It should match one of the names in the gitwar.score file"
+  echo "You are not a player in this game. Check your git config for your 'user.name' setting. It should match one of the names in the gitwar.users file"
   echo
   exit
 fi
@@ -245,7 +245,6 @@ else
 
   performAttack $attack
   echo "`date "+%Y-%m-%d %H:%M:%S %z"`,$me,$attack,$attackResult" >> gitwar.log
-  echo -n "$score" | sed "s/$opponent [0-9]*/$opponent $opponentScore/" > gitwar.score
   echo
 
   # Call gitwar to give opponent a turn
