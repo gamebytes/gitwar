@@ -87,12 +87,10 @@ function calculateScores {
       exit
     fi
   done < <( sed 1d "$logfile" )
-  if [[ "$myScore" -gt "0" && "$opponentScore" -gt "0" ]]; then
-    echo "[ROUND $round]"
-    echo "$me's health: $myScore"
-    echo "$opponent's health: $opponentScore"
-    echo
-  else
+}
+
+function checkGameOver {
+  if [ "$myScore" -lt "0" ] -o [ "$opponentScore" -lt "0" ]; then
     echo "GAME OVER!"
     echo
     if [ "$myScore" -gt "$opponentScore" ]; then
@@ -108,6 +106,17 @@ function calculateScores {
     echo "If you'd like to play again excute '../gitwar -c'"
     echo
     exit
+  fi
+}
+
+function printRound {
+  if [[ "$myScore" -gt "0" && "$opponentScore" -gt "0" ]]; then
+    echo "[ROUND $round]"
+    echo "$me's health: $myScore"
+    echo "$opponent's health: $opponentScore"
+    echo
+  else
+    checkGameOver
   fi
 }
 
@@ -136,6 +145,7 @@ function loop {
     fi
 
     calculateScores
+    printRound
 
     attack=''
     while [[ "$attack" != "J" && "$attack" != "H" && "$attack" != "U" && "$attack" != "L" ]]; do
@@ -156,6 +166,7 @@ function loop {
     echo
 
     # Call gitwar to give opponent a turn
+    checkGameOver
     ../gitwar
 
     echo
@@ -188,6 +199,7 @@ echo "$me vs. $opponent"
 echo
 
 calculateScores
+printRound
 
 # If the player actually belongs in the game welcome them and
 # ask what attack they'd like to perform
@@ -225,6 +237,7 @@ else
   echo
 
   # Call gitwar to give opponent a turn
+  checkGameOver
   ../gitwar
 
   echo
