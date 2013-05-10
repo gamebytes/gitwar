@@ -137,7 +137,8 @@ function getRecentEvent {
   result=`echo "$opponentMove" | cut -d, -f4 | cut -d" " -f1`
   damage=`echo "$opponentMove" | cut -d, -f4 | cut -d" " -f2`
   if [ "$result" = "HIT" ]; then
-    recentEvent="$opponent HIT! Threw a $action and knocked $damage points off your health."
+    recentEvent="$opponent HIT! Threw a $action and knocked $damage points off $me's health."
+    recentEventYours="$opponent HIT! Threw a $action and knocked $damage points off your health."
   else
     recentEvent="$opponent MISSED"
   fi
@@ -146,7 +147,7 @@ function getRecentEvent {
 function loop {
   while [ 1 = 1 ]; do
     getRecentEvent
-    echo $reventEvent
+    echo $recentEventYours
     echo
 
     calculateScores
