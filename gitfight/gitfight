@@ -66,6 +66,8 @@ function performAttack {
 function calculateScores {
   opponentScore=100
   myScore=100
+  round=`cat "$logfile" | wc -l`
+  round=`expr "$round" / 2 + "$round" % 2`
   while read line; do
     myLine=`echo "$line" | grep "$me"`
     opponentLine=`echo "$line" | grep "$opponent"`
@@ -90,10 +92,28 @@ function calculateScores {
       exit
     fi
   done < <( sed 1d "$logfile" )
-  echo "RECAP"
-  echo "$me's health: $myScore"
-  echo "$opponent's health: $opponentScore"
-  echo
+  if [[ "$myScore" -gt "0" && "$opponentScore" -gt "0" ]]; then
+    echo "[ROUND $round]"
+    echo "$me's health: $myScore"
+    echo "$opponent's health: $opponentScore"
+    echo
+  else
+    echo "GAME OVER!"
+    echo
+    if [ "$myScore" -gt "$opponentScore" ]; then
+      echo "$me WINS!"
+    else
+      echo "$opponent WINS!"
+    fi
+    echo
+    # Someone's health is 0
+    echo "$me's health: $myScore"
+    echo "$opponent's health: $opponentScore"
+    echo
+    echo "If you'd like to play again excute '../gitwar -c'"
+    echo
+    exit
+  fi
 }
 
 function loop {
@@ -148,9 +168,7 @@ function loop {
 }
 
 echo
-echo "[GITFIGHT!]"
-echo
-
+echo -n "[GITFIGHT!] "
 
 # Initialize some stuff
 logfile="gitwar.log"
@@ -170,6 +188,9 @@ else
   echo
   exit
 fi
+
+echo "$me vs. $opponent"
+echo
 
 calculateScores
 
