@@ -120,29 +120,33 @@ function printRound {
   fi
 }
 
+function getRecentEvent {
+  opponentMove=`tail -1 gitwar.log`
+  checkOpponent=`echo "$opponentMove" | cut -d, -f2`
+  action=`echo "$opponentMove" | cut -d, -f3`
+  if [ "$action" = "J" ]; then
+    action="JAB"
+  elif [ "$action" = "H" ]; then
+    action="HAYMAKER"
+  elif [ "$action" = "L" ]; then
+    action="LEFT HOOK"
+  else
+    action="UPPERCUT"
+  fi
+  result=`echo "$opponentMove" | cut -d, -f4 | cut -d" " -f1`
+  damage=`echo "$opponentMove" | cut -d, -f4 | cut -d" " -f2`
+  if [ "$result" = "HIT" ]; then
+    recentEvent="$opponent HIT! Threw a $action and knocked $damage points off your health."
+  else
+    recentEvent="$opponent MISSED"
+  fi
+}
+
 function loop {
   while [ 1 = 1 ]; do
-    opponentMove=`tail -1 gitwar.log`
-    checkOpponent=`echo "$opponentMove" | cut -d, -f2`
-    action=`echo "$opponentMove" | cut -d, -f3`
-    if [ "$action" = "J" ]; then
-      action="JAB"
-    elif [ "$action" = "H" ]; then
-      action="HAYMAKER"
-    elif [ "$action" = "L" ]; then
-      action="LEFT HOOK"
-    else
-      action="UPPERCUT"
-    fi
-    result=`echo "$opponentMove" | cut -d, -f4 | cut -d" " -f1`
-    damage=`echo "$opponentMove" | cut -d, -f4 | cut -d" " -f2`
-    if [ "$result" = "HIT" ]; then
-      echo "$opponent HIT! Threw a $action and knocked $damage points off your health."
-      echo
-    else
-      echo "$opponent MISSED"
-      echo
-    fi
+    getRecentEvent
+    echo $reventEvent
+    echo
 
     calculateScores
     printRound
@@ -164,6 +168,8 @@ function loop {
     echo "`date "+%Y-%m-%d %H:%M:%S %z"`,$me,$attack,$attackResult" >> gitwar.log
     echo -n "$score" | sed "s/$opponent [0-9]*/$opponent $opponentScore/" > gitwar.score
     echo
+
+
 
     # Call gitwar to give opponent a turn
     checkGameOver
