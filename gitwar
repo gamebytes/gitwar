@@ -15,6 +15,10 @@ function silentSubmit {
   git push origin master &> /dev/null
 }
 
+function silentPull {
+  git pull origin master &> /dev/null
+}
+
 function wait {
   echo -n 'Waiting for opponent to make their move...'
   while [ "$continue" = 'Already up-to-date.' ]; do
@@ -41,6 +45,8 @@ elif [ "$1" = "-c" ]; then
   reset
 elif [ "$1" = "-s" ]; then
   silentSubmit
+elif [ "$1" = "-p" ]; then
+  silentPull
 else
   submitTurn
   wait

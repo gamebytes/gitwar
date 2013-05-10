@@ -11,8 +11,6 @@ function closeGame {
 
 trap "closeGame;" INT
 
-declare -A attackTable
-
 function performAttack {
   hit=0
   if [ "$1" = "J" ]; then
@@ -174,6 +172,10 @@ function loop {
     echo
   done
 }
+
+echo
+echo "Loading..."
+../gitwar -p
 
 echo
 echo -n "[GITFIGHT!] "
