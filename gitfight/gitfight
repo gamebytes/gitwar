@@ -104,7 +104,8 @@ function checkGameOver {
     echo "If you'd like to play again excute '../gitwar -c'"
     echo
 
-    ../gitwar -s
+    getRecentEvent
+    ../gitwar -s "$recentEvent"
     exit
   fi
 }
@@ -172,8 +173,9 @@ function loop {
 
 
     # Call gitwar to give opponent a turn
+    getRecentEvent
     checkGameOver
-    ../gitwar
+    ../gitwar "$recentEvent"
 
     echo
   done
@@ -247,8 +249,9 @@ else
   echo
 
   # Call gitwar to give opponent a turn
+  getRecentEvent
   checkGameOver
-  ../gitwar
+  ../gitwar "$recentEvent"
 
   echo
 
