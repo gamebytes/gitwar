@@ -1,4 +1,4 @@
-Gitwar ![](https://secure.gravatar.com/avatar/a52f0b5df73d445c85ffcbb6ac4b1d8b?s=80) 
+![](https://secure.gravatar.com/avatar/a52f0b5df73d445c85ffcbb6ac4b1d8b?s=50) Gitwar
 ======
 
 A platform for git-based turn-based command-line games.
