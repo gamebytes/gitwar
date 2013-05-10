@@ -4,7 +4,7 @@ continue='Already up-to-date.'
 
 function submitTurn {
   echo 'Submitting game data...'
-  git add gitwar.score gitwar.log &> /dev/null
+  git add gitwar.log &> /dev/null
   git commit -m "Opponent took their turn" &> /dev/null
   git push origin master &> /dev/null
 }
@@ -20,8 +20,19 @@ function wait {
   echo
 }
 
+function reset {
+  echo "Resetting game - make sure your opponent pulls the latest changes before they start playing"
+  heading=`head -1 gitwar.log`
+  echo "$heading" > gitwar.log
+  git add gitwar.log &> /dev/null
+  git commit -m 'Resetting game' &> /dev/null
+  git push origin master &> /dev/null
+}
+
 if [ "$1" = "-w" ]; then
   wait
+elif [ "$1" = "-c" ]; then
+  reset
 else
   submitTurn
   wait
