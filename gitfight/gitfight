@@ -3,20 +3,32 @@
 # Gracefully shutdown game
 function closeGame {
   echo
+  echo
   echo -n "Are you sure you want to exit? (y/N): "
   read allDone
   if [ "$allDone" = "y" ]; then
+    echo
+    echo "GOODBYE!"
+    echo
     exit
   fi
 }
 
-# trap "closeGame;" INT
+trap "closeGame;" INT
 
 declare -A attackTable
 
 function performAttack {
   hit=0
-  if [ "$1" = "U" ]; then
+  if [ "$1" = "J" ]; then
+    rand=$[ ( $RANDOM % 10 ) + 1 ]
+    if [ "$rand" -gt 4 ]; then
+      hit=$[ ( $RANDOM % 10 ) + 8 ]
+      attackResult="HIT $hit"
+    else
+      attackResult="MISS"
+    fi
+  elif [ "$1" = "U" ]; then
     rand=$[ ( $RANDOM % 10 ) + 1 ]
     if [ "$rand" -gt 8 ]; then
       hit=$[ ( $RANDOM % 10 ) + 16 ]
@@ -28,14 +40,6 @@ function performAttack {
     rand=$[ ( $RANDOM % 10 ) + 1 ]
     if [ "$rand" -gt 6 ]; then
       hit=$[ ( $RANDOM % 10 ) + 11 ]
-      attackResult="HIT $hit"
-    else
-      attackResult="MISS"
-    fi
-  elif [ "$1" = "J" ]; then
-    rand=$[ ( $RANDOM % 10 ) + 1 ]
-    if [ "$rand" -gt 4 ]; then
-      hit=$[ ( $RANDOM % 10 ) + 8 ]
       attackResult="HIT $hit"
     else
       attackResult="MISS"
@@ -59,17 +63,87 @@ function performAttack {
   fi
 }
 
-function calculateOpponentScore {
+function calculateScores {
+  opponentScore=100
+  myScore=100
   while read line; do
-    opponentLine=`echo "$line" | grep "$1"`
-    if ! [ -z "$opponentLine" ]; then
+    myLine=`echo "$line" | grep "$me"`
+    opponentLine=`echo "$line" | grep "$opponent"`
+    if ! [ -z "$myLine" ]; then
+      # my lines log the damage done to opponent
       hit=`echo "$line" | cut -d, -f4 | cut -d" " -f1`
       damage=`echo "$line" | cut -d"," -f4 | cut -d" " -f2`
       if [ "$hit" = "HIT" ]; then
         opponentScore=`expr $opponentScore - $damage`
       fi
+    elif ! [ -z "$opponentLine" ]; then
+      # opponent lines log the damage done to myself
+      hit=`echo "$line" | cut -d, -f4 | cut -d" " -f1`
+      damage=`echo "$line" | cut -d"," -f4 | cut -d" " -f2`
+      if [ "$hit" = "HIT" ]; then
+        myScore=`expr $myScore - $damage`
+      fi
+    else
+      echo
+      echo "gitwar.log has incorrect syntax!"
+      echo
+      exit
     fi
   done < <( sed 1d "$logfile" )
+  echo "RECAP"
+  echo "$me's health: $myScore"
+  echo "$opponent's health: $opponentScore"
+  echo
+}
+
+function loop {
+  while [ 1 = 1 ]; do
+    opponentMove=`tail -1 gitwar.log`
+    checkOpponent=`echo "$opponentMove" | cut -d, -f2`
+    action=`echo "$opponentMove" | cut -d, -f3`
+    if [ "$action" = "J" ]; then
+      action="JAB"
+    elif [ "$action" = "H" ]; then
+      action="HAYMAKER"
+    elif [ "$action" = "L" ]; then
+      action="LEFT HOOK"
+    else
+      action="UPPERCUT"
+    fi
+    result=`echo "$opponentMove" | cut -d, -f4 | cut -d" " -f1`
+    damage=`echo "$opponentMove" | cut -d, -f4 | cut -d" " -f2`
+    if [ "$result" = "HIT" ]; then
+      echo "$opponent HIT! Threw a $action and knocked $damage points off your health."
+      echo
+    else
+      echo "$opponent MISSED"
+      echo
+    fi
+
+    calculateScores
+
+    attack=''
+    while [[ "$attack" != "J" && "$attack" != "H" && "$attack" != "U" && "$attack" != "L" ]]; do
+      if [ -z "$attack" ]; then
+        echo "Incorrect attack syntax. Please try again."
+      fi
+      echo "How would you like to attack?"
+      echo "H - Haymaker, U - Uppercut"
+      echo -n "L - Left Hook, J - Jab: "
+      read attack
+    done
+    echo
+
+    performAttack $attack
+    echo "`date "+%Y-%m-%d %H:%M:%S %z"`,$me,$attack,$attackResult" >> gitwar.log
+    echo -n "$score" | sed "s/$opponent [0-9]*/$opponent $opponentScore/" > gitwar.score
+    echo
+
+    # Call gitwar to give opponent a turn
+    ../gitwar
+
+    echo
+  done
 }
 
 echo
@@ -86,18 +160,17 @@ users=`cat .gitwar`
 # Check that the user can play and get the opponent's score
 user1=`echo $users | cut -d" " -f1`
 user2=`echo $users | cut -d" " -f2`
-opponentScore=100
 if [ "$me" = "$user1" ]; then
   opponent="$user2"
-  calculateOpponentScore "$user1" #calculate based on my previous hits
 elif [ "$me" = "$user2" ]; then
   opponent="$user1"
-  calculateOpponentScore "$user2" #calculate based on my previous hits
 else
   echo "You are not a player in this game. Check your git config for your 'user.name' setting. It should match one of the names in the gitwar.score file"
   echo
   exit
 fi
+
+calculateScores
 
 # If the player actually belongs in the game welcome them and
 # ask what attack they'd like to perform
@@ -108,25 +181,34 @@ justWent=`tail -1 gitwar.log | grep $me`
 
 if ! [ -z "$justWent" ]; then
   echo "Looks like it's not your turn. Please wait for your opponent to attack..."
+  echo
   # Call gitwar to wait for opponent
-else
-  echo "How would you like to attack?"
-  echo "H - Haymaker, U - Uppercut"
-  echo -n "L - Left Hook, J - Jab: "
-  read attack
+  ../gitwar -w
+
   echo
 
-  while [[ "$attack" != "H" && "$attack" && "U" && "$attack" = "L" ]]; do
-    echo "Incorrect attack syntax. Please try again."
-    echo -n "How would you like to attack? (<strength> <attack>): "
+  loop
+else
+  attack=''
+  while [[ "$attack" != "J" && "$attack" != "H" && "$attack" != "U" && "$attack" != "L" ]]; do
+    echo "How would you like to attack?"
+    echo "H - Haymaker, U - Uppercut"
+    echo -n "L - Left Hook, J - Jab: "
     read attack
   done
+  echo
 
   performAttack $attack
   echo "`date "+%Y-%m-%d %H:%M:%S %z"`,$me,$attack,$attackResult" >> gitwar.log
   echo -n "$score" | sed "s/$opponent [0-9]*/$opponent $opponentScore/" > gitwar.score
+  echo
+
   # Call gitwar to give opponent a turn
-  ../core/gitwar
+  ../gitwar
+
+  echo
+
+  loop
 fi
 
 while [ 1 = 1 ]; do
