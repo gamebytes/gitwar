@@ -16,7 +16,6 @@ function wait {
   done
 
   # Call the app who called me and tell them the opponent took their turn
-  tail -1 gitwar.log > .gitwar
 
   echo
 }
