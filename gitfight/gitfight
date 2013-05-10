@@ -192,7 +192,7 @@ echo -n "[GITFIGHT!] "
 logfile="gitwar.log"
 log=`cat gitwar.log`
 me=`git config "user.name"`
-users=`cat .gitwar`
+users=`cat gitwar.users`
 
 # Check that the user can play and get the opponent's score
 user1=`echo $users | cut -d" " -f1`
