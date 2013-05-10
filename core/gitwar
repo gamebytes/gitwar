@@ -1,0 +1,29 @@
+#!/bin/bash
+
+continue='Already up-to-date.'
+
+function submitTurn {
+  echo 'Submitting game data...'
+  git add gitwar.score gitwar.log &> /dev/null
+  git commit -m "Opponent took their turn" &> /dev/null
+  git push origin master &> /dev/null
+}
+
+function wait {
+  echo -n 'Waiting for opponent to make their move...'
+  while [ "$continue" = 'Already up-to-date.' ]; do
+    continue=`git pull origin master 2> /dev/null`
+  done
+
+  # Call the app who called me and tell them the opponent took their turn
+  tail -1 gitwar.log > .gitwar
+
+  echo
+}
+
+if [ "$1" = "-w" ]; then
+  wait
+else
+  submitTurn
+  wait
+fi
