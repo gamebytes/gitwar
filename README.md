@@ -20,6 +20,32 @@ Git, shell scripting, and playing games has never been so... weird.
 4. Run the executable: `./gitfight`
 5. Submit your first turn, and wait for your friend to submit theirs.
 
+## Writing games
+
+Want to write your own game on top of Gitwar? Awesome!
+
+Here's what's needed to write a Gitwar game:
+
+Nothing. That's right. The gitwar script is actually very dumb about
+what's going on in the game. It just add files, commits, pushes, and
+pulls. Normal git stuff.
+
+The game script can be pretty much anything you want. Just remember to
+use ../gitwar <commit message here> to submit a turn and wait for your
+opponent.
+
+## Gitfight-style
+
+Here's what you will need if you want your game to be anything like
+gitfight:
+
+1. gitwar.log - gitfight can replay the entire game sequence so leaving the game
+   and re-entering is a breeze.
+2. gitwar.users - gitfight users this file to make sure your
+   .gitconfig's user.name is on the list of players
+3. The rest of it, theme, user-input, scoring system, algorithms are all
+   up to you.
+
 ## Note
 
 This is more for fun than for anything else. It's just yet another way
