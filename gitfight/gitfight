@@ -168,7 +168,7 @@ echo -n "[GITFIGHT!] "
 # Initialize some stuff
 logfile="gitwar.log"
 log=`cat gitwar.log`
-me=`git config --global "user.name"`
+me=`git config "user.name"`
 users=`cat .gitwar`
 
 # Check that the user can play and get the opponent's score
