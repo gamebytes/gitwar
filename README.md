@@ -8,16 +8,17 @@ Git, shell scripting, and playing games has never been so... weird.
 
 ## Games
 
-1. [Gitfight](http://github.gitwar/gitfight)
-2. [Gitchess](http://github.gitwar/gitchess)
-3. [Gitcastle](http://github.gitwar/gitcastle)
+1. [Gitfight](http://github.com/gitwar/gitwar/tree/master/gitfight)
+2. Gitchess - TBD
+3. Gitcastle - TBD
 
 ## How to play
 
-1. Fork the repo of one of the Gitwar games
+1. Fork this repo
 2. Add a friend as a collaborator
-3. Run the executable: `./gitwar`
-4. Submit your first turn, and wait for your friend to submit theirs.
+3. CD into the game you want to play
+4. Run the executable: `./gitfight`
+5. Submit your first turn, and wait for your friend to submit theirs.
 
 ## Note
 
