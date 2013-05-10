@@ -1,6 +1,8 @@
 Gitwar*
 ======
 
+![](gitwar.png)
+
 A platform for git-based turn-based command-line games.
 
 Gitwar and each of its games are written in BASH. That's right.
