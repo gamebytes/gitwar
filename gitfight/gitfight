@@ -4,14 +4,9 @@
 function closeGame {
   echo
   echo
-  echo -n "Are you sure you want to exit? (y/N): "
-  read allDone
-  if [ "$allDone" = "y" ]; then
-    echo
-    echo "GOODBYE!"
-    echo
-    exit
-  fi
+  echo "GOODBYE!"
+  echo
+  exit
 }
 
 trap "closeGame;" INT
