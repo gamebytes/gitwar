@@ -90,7 +90,7 @@ function calculateScores {
 }
 
 function checkGameOver {
-  if [ "$myScore" -lt "0" ] -o [ "$opponentScore" -lt "0" ]; then
+  if [[ "$myScore" -lt "0" || "$opponentScore" -lt "0" ]]; then
     echo "GAME OVER!"
     echo
     if [ "$myScore" -gt "$opponentScore" ]; then
@@ -105,6 +105,8 @@ function checkGameOver {
     echo
     echo "If you'd like to play again excute '../gitwar -c'"
     echo
+
+    ../gitwar -s
     exit
   fi
 }
