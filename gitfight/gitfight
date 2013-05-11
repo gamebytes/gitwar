@@ -109,7 +109,7 @@ function checkGameOver {
 }
 
 function printRound {
-  round=`sed 1d "$logfile" | wc -l`
+  round=`cat "$logfile" | wc -l`
   round=`expr "$round" / 2 + "$round" % 2`
   if [[ "$myScore" -ge "0" && "$opponentScore" -ge "0" ]]; then
     echo "[ROUND $round]"
