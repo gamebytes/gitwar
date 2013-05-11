@@ -125,6 +125,7 @@ function getRecentEvent {
   opponentMove=`tail -1 gitwar.log`
   checkOpponent=`echo "$opponentMove" | cut -d, -f2`
   action=`echo "$opponentMove" | cut -d, -f3`
+  article="a"
   if [ "$action" = "J" ]; then
     action="JAB"
   elif [ "$action" = "H" ]; then
@@ -132,16 +133,17 @@ function getRecentEvent {
   elif [ "$action" = "L" ]; then
     action="LEFT HOOK"
   else
+    article="an"
     action="UPPERCUT"
   fi
   result=`echo "$opponentMove" | cut -d, -f4 | cut -d" " -f1`
   damage=`echo "$opponentMove" | cut -d, -f4 | cut -d" " -f2`
   if [ "$result" = "HIT" ]; then
-    recentEvent="$opponent HIT! Threw a(n) $action and knocked $damage points off $me's health."
-    recentEventYours="$opponent HIT! Threw a(n) $action and knocked $damage points off your health."
+    recentEvent="$opponent HIT! Threw $article $action and knocked $damage points off $me's health."
+    recentEventYours="$opponent HIT! Threw $article $action and knocked $damage points off your health."
   else
-    recentEvent="$opponent MISSED! Threw a(n) $action and knocked $damage points off your health."
-    recentEventYours="$opponent MISSED! Threw a(n) $action and knocked $damage points off your health."
+    recentEvent="$opponent MISSED! Threw $article $action and knocked $damage points off your health."
+    recentEventYours="$opponent MISSED! Threw $article $action and knocked $damage points off your health."
   fi
 }
 
