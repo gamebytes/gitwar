@@ -59,8 +59,6 @@ function performAttack {
 function calculateScores {
   opponentScore=100
   myScore=100
-  round=`cat "$logfile" | wc -l`
-  round=`expr "$round" / 2 + "$round" % 2`
   while read line; do
     myLine=`echo "$line" | grep "$me"`
     opponentLine=`echo "$line" | grep "$opponent"`
@@ -111,7 +109,9 @@ function checkGameOver {
 }
 
 function printRound {
-  if [[ "$myScore" -gt "0" && "$opponentScore" -gt "0" ]]; then
+  round=`sed 1d "$logfile" | wc -l`
+  round=`expr "$round" / 2 + "$round" % 2 + 1`
+  if [[ "$myScore" -ge "0" && "$opponentScore" -ge "0" ]]; then
     echo "[ROUND $round]"
     echo "$me's health: $myScore"
     echo "$opponent's health: $opponentScore"
@@ -137,10 +137,11 @@ function getRecentEvent {
   result=`echo "$opponentMove" | cut -d, -f4 | cut -d" " -f1`
   damage=`echo "$opponentMove" | cut -d, -f4 | cut -d" " -f2`
   if [ "$result" = "HIT" ]; then
-    recentEvent="$opponent HIT! Threw a $action and knocked $damage points off $me's health."
-    recentEventYours="$opponent HIT! Threw a $action and knocked $damage points off your health."
+    recentEvent="$opponent HIT! Threw a(n) $action and knocked $damage points off $me's health."
+    recentEventYours="$opponent HIT! Threw a(n) $action and knocked $damage points off your health."
   else
-    recentEvent="$opponent MISSED"
+    recentEvent="$opponent MISSED! Threw a(n) $action and knocked $damage points off your health."
+    recentEventYours="$opponent MISSED! Threw a(n) $action and knocked $damage points off your health."
   fi
 }
 
