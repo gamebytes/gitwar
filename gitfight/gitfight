@@ -137,7 +137,11 @@ function getRecentEvent {
     action="UPPERCUT"
   fi
   result=`echo "$opponentMove" | cut -d, -f4 | cut -d" " -f1`
-  damage=`echo "$opponentMove" | cut -d, -f4 | cut -d" " -f2`
+  if [ "$result" = "HIT" ]; then
+    damage=`echo "$opponentMove" | cut -d, -f4 | cut -d" " -f2`
+  else
+    damage="0"
+  fi
   if [ "$result" = "HIT" ]; then
     recentEvent="$opponent HIT! Threw $article $action and knocked $damage points off $me's health."
     recentEventYours="$opponent HIT! Threw $article $action and knocked $damage points off your health."
