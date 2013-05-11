@@ -15,7 +15,7 @@ function performAttack {
   hit=0
   if [ "$1" = "J" ]; then
     # Jab
-    # 70% chance
+    # 80% chance
     # Between 8-10 hit points
     rand=$[ ( $RANDOM % 10 ) + 1 ]
     if [ "$rand" -gt 3 ]; then
@@ -26,7 +26,7 @@ function performAttack {
     fi
   elif [ "$1" = "L" ]; then
     # Left Hook
-    # 60% chance
+    # 70% chance
     # Between 15-20 hit points
     rand=$[ ( $RANDOM % 10 ) + 1 ]
     if [ "$rand" -gt 4 ]; then
@@ -37,7 +37,7 @@ function performAttack {
     fi
   elif [ "$1" = "U" ]; then
     # Uppercut
-    # 40% chance
+    # 60% chance
     # Between 20-25 hit points
     rand=$[ ( $RANDOM % 10 ) + 1 ]
     if [ "$rand" -gt 6 ]; then
@@ -48,7 +48,7 @@ function performAttack {
     fi
   else
     # Haymaker
-    # 30% chance
+    # 40% chance
     # Between 30-35 hit points
     rand=$[ ( $RANDOM % 10 ) + 1 ]
     if [ "$rand" -gt 7 ]; then
