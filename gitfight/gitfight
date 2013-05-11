@@ -14,33 +14,45 @@ trap "closeGame;" INT
 function performAttack {
   hit=0
   if [ "$1" = "J" ]; then
+    # Jab
+    # 70% chance
+    # Between 8-10 hit points
     rand=$[ ( $RANDOM % 10 ) + 1 ]
-    if [ "$rand" -gt 4 ]; then
-      hit=$[ ( $RANDOM % 10 ) + 8 ]
-      attackResult="HIT $hit"
-    else
-      attackResult="MISS"
-    fi
-  elif [ "$1" = "U" ]; then
-    rand=$[ ( $RANDOM % 10 ) + 1 ]
-    if [ "$rand" -gt 8 ]; then
-      hit=$[ ( $RANDOM % 10 ) + 16 ]
+    if [ "$rand" -gt 3 ]; then
+      hit=$[ ( $RANDOM % 3 ) + 8 ]
       attackResult="HIT $hit"
     else
       attackResult="MISS"
     fi
   elif [ "$1" = "L" ]; then
+    # Left Hook
+    # 60% chance
+    # Between 15-20 hit points
+    rand=$[ ( $RANDOM % 10 ) + 1 ]
+    if [ "$rand" -gt 4 ]; then
+      hit=$[ ( $RANDOM % 6 ) + 15 ]
+      attackResult="HIT $hit"
+    else
+      attackResult="MISS"
+    fi
+  elif [ "$1" = "U" ]; then
+    # Uppercut
+    # 40% chance
+    # Between 20-25 hit points
     rand=$[ ( $RANDOM % 10 ) + 1 ]
     if [ "$rand" -gt 6 ]; then
-      hit=$[ ( $RANDOM % 10 ) + 11 ]
+      hit=$[ ( $RANDOM % 6 ) + 20 ]
       attackResult="HIT $hit"
     else
       attackResult="MISS"
     fi
   else
+    # Haymaker
+    # 30% chance
+    # Between 30-35 hit points
     rand=$[ ( $RANDOM % 10 ) + 1 ]
-    if [ "$rand" -gt 9 ]; then
-      hit=$[ ( $RANDOM % 10 ) + 21 ]
+    if [ "$rand" -gt 7 ]; then
+      hit=$[ ( $RANDOM % 6 ) + 30 ]
       attackResult="HIT $hit"
     else
       attackResult="MISS"
