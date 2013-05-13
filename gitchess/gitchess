@@ -11,7 +11,7 @@ grid=(
 'row=(ROOK KNIGHT BISHOP KING QUEEN BISHOP KNIGHT ROOK)'
 )
 
-function flipGrid {
+function flipBoard {
   i=7
   newGrid=()
   for j in {0..7}; do
@@ -548,7 +548,7 @@ function loadGame {
         badLogfileSyntax
       else
         color=$opponentColor
-        flipGrid
+        flipBoard
       fi
     elif ! [ -z "$opponentLine" ]; then
       move=`echo "$line" | cut -d, -f3`
@@ -557,7 +557,7 @@ function loadGame {
         badLogfileSyntax
       else
         color=$myColor
-        flipGrid
+        flipBoard
       fi
     else
       badLogfileSyntax
