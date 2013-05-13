@@ -612,6 +612,15 @@ while [[ -z "$move" || "$move" = "invalid" ]]; do
     move=""
     drawBoard
 
-    ../gitwar
+    ../gitwar "$me took turn"
+
+    move=`tail -1 "$logfile" | cut -d, -f3`
+    actingUser=`tail -1 "$logfile" | cut -d, -f2`
+    if [ "$actingUser" = "$opponent" ]; then
+      flipBoard
+      color=$opponentColor
+      performMove "$move" "$opponentColor"
+      flipBoard
+    fi
   fi
 done
