@@ -1,11 +1,11 @@
 #!/bin/bash
 
 grid=(
-'row=(rook knight bishop queen king bishop knight rook)'
+'row=(rook knight blank queen king bishop knight rook)'
 'row=(pawn pawn pawn pawn pawn pawn pawn pawn)'
 'row=(blank blank blank blank blank blank blank blank)'
 'row=(blank blank blank blank blank blank blank blank)'
-'row=(blank blank blank blank blank blank blank blank)'
+'row=(blank blank bishop blank blank blank blank blank)'
 'row=(blank blank blank blank blank blank blank blank)'
 'row=(PAWN PAWN PAWN PAWN PAWN PAWN PAWN PAWN)'
 'row=(ROOK KNIGHT BISHOP KING QUEEN BISHOP KNIGHT ROOK)'
@@ -92,7 +92,7 @@ function getMove {
 }
 
 function movePiece {
-  srcFile=$1; srcRow=$2; targetFile=$3; targetRow=$4
+  srcFile=$1; srcRow=$2; targetFile=$3; targetRow=$4; swapForQueen=$5
 
   # insert blank where src once was
   eval ${grid[srcRow]}
@@ -104,7 +104,11 @@ function movePiece {
   # replace target with src
   eval ${grid[targetRow]}
   target=${row[targetFile]}
-  row[$targetFile]=$src
+  if [ $swapForQueen = "1" ]; then
+    row[$targetFile]="QUEEN"
+  else
+    row[$targetFile]=$src
+  fi
   list=`echo ${row[@]}`
   grid[$targetRow]='row=('$list')'
 
@@ -112,6 +116,36 @@ function movePiece {
     captureMessage="Opponent's $target captured!"
   else
     captureMessage=""
+  fi
+}
+
+queenAlive="1"
+function movePawn {
+  srcFile=$1; srcRow=$2; targetFile=$3; targetRow=$4
+
+  rowDiff=`expr $targetRow - $srcRow`
+  rowChange="-1"
+  fileDiff=`expr $targetFile - $srcFile`
+  fileDiff=`echo ${fileDiff#-}`
+  fileChange="0"
+  if [ "$srcRow" = "6" ]; then
+    # double move allowed
+    rowChange="-2"
+    # if we're moving 2 spaces forward
+    # make sure there's nothing in between
+    between=`expr $srcRow - 1`
+    eval ${grid[between]}
+    between=${row[srcFile]}
+  else
+    between="blank"
+  fi
+  if [ $captureAttempt = "1" ];then
+    fileChange="1"
+    rowChange="-1"
+  fi
+
+  if [[ "$rowDiff" -lt "$rowChange" || $rowDiff = "0" || "$fileDiff" != "$fileChange" || "$between" != "blank" ]]; then
+    invalidMove "Pawn can't move that way"
   fi
 }
 
@@ -190,6 +224,7 @@ function performMove {
       captureAttempt=0
     fi
 
+    swapForQueen="0"
     if [ "$piece" = "blank" ]; then
       invalidMove "There's no piece there"
     elif [ "$pieceColor" != "$myColor" ]; then
@@ -199,17 +234,26 @@ function performMove {
       invalidMove "You can't capture your own piece"
     elif [ "$piece" = "PAWN" ]; then
       movePawn $srcFile $srcRow $targetFile $targetRow
+      if [[ $move != "invalid" && $targetRow = "0" && $queenAlive != "1" ]]; then
+        echo 'swapforqueen'
+        # Queen swap
+        swapForQueen="1"
+      fi
     elif [ "$piece" = "ROOK" ]; then
       moveRook $srcFile $srcRow $targetFile $targetRow
     elif [ "$piece" = "KNIGHT" ]; then
       moveKnight $srcFile $srcRow $targetFile $targetRow
-      movePiece $srcFile $srcRow $targetFile $targetRow
     elif [ "$piece" = "BISHOP" ]; then
       moveBishop $srcFile $srcRow $targetFile $targetRow
     elif [ "$piece" = "KING" ]; then
       moveKing $srcFile $srcRow $targetFile $targetRow
     elif [ "$piece" = "QUEEN" ]; then
       moveQueen $srcFile $srcRow $targetFile $targetRow
+    fi
+
+    if [ "$move" != "invalid" ]; then
+      movePiece $srcFile $srcRow $targetFile $targetRow $swapForQueen
+      explanation=""
     fi
   fi
 }
@@ -222,6 +266,7 @@ while [[ -z "$move" || "$move" = "invalid" ]]; do
   performMove "$move"
   if [ "$move" != "invalid" ]; then
     if ! [ -z "$captureMessage" ]; then
+      echo
       echo $captureMessage
       echo
     fi
