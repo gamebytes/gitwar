@@ -1,0 +1,231 @@
+#!/bin/bash
+
+grid=(
+'row=(rook knight bishop queen king bishop knight rook)'
+'row=(pawn pawn pawn pawn pawn pawn pawn pawn)'
+'row=(blank blank blank blank blank blank blank blank)'
+'row=(blank blank blank blank blank blank blank blank)'
+'row=(blank blank blank blank blank blank blank blank)'
+'row=(blank blank blank blank blank blank blank blank)'
+'row=(PAWN PAWN PAWN PAWN PAWN PAWN PAWN PAWN)'
+'row=(ROOK KNIGHT BISHOP KING QUEEN BISHOP KNIGHT ROOK)'
+)
+
+function getPiece {
+  if [ "$1" = "king" ]; then
+    piece=`echo -e "\xE2\x99\x94"`
+  elif [ "$1" = "queen" ]; then
+    piece=`echo -e "\xE2\x99\x95"`
+  elif [ "$1" = "rook" ]; then
+    piece=`echo -e "\xE2\x99\x96"`
+  elif [ "$1" = "bishop" ]; then
+    piece=`echo -e "\xE2\x99\x97"`
+  elif [ "$1" = "knight" ]; then
+    piece=`echo -e "\xE2\x99\x98"`
+  elif [ "$1" = "pawn" ]; then
+    piece=`echo -e "\xE2\x99\x99"`
+  elif [ "$1" = "KING" ]; then
+    piece=`echo -e "\xE2\x99\x9A"`
+  elif [ "$1" = "QUEEN" ]; then
+    piece=`echo -e "\xE2\x99\x9B"`
+  elif [ "$1" = "ROOK" ]; then
+    piece=`echo -e "\xE2\x99\x9C"`
+  elif [ "$1" = "BISHOP" ]; then
+    piece=`echo -e "\xE2\x99\x9D"`
+  elif [ "$1" = "KNIGHT" ]; then
+    piece=`echo -e "\xE2\x99\x9E"`
+  elif [ "$1" = "PAWN" ]; then
+    piece=`echo -e "\xE2\x99\x9F"`
+  else
+    piece=" "
+  fi
+}
+
+function getFile {
+  if [ "$1" = "a" ]; then file=0; elif [ "$1" = "b" ]; then file=1; elif [ "$1" = "c" ]; then file=2
+  elif [ "$1" = "d" ]; then file=3; elif [ "$1" = "e" ]; then file=4; elif [ "$1" = "f" ]; then file=5
+  elif [ "$1" = "g" ]; then file=6; elif [ "$1" = "h" ]; then file=7; else file="error"; fi
+}
+
+function invalidMove {
+  move="invalid"
+  explanation="$1"
+}
+
+horiz="  -----------------------------------------"
+alpha="    A    B    C    D    E    F    G    H"
+function drawBoard {
+  echo -e "$alpha"
+  echo "$horiz"
+  for i in {0..7}; do
+    eval ${grid[i]}
+    echo -n `expr $i + 1`" "
+    for j in {0..7}; do
+      getPiece ${row[j]}
+
+      echo -n "| "$piece"  "
+      if [ "$j" = "7" ]; then
+        echo -n "|"
+      fi
+    done
+    echo -n " "`expr $i + 1`
+
+    echo
+    echo "$horiz"
+  done
+  echo -e "$alpha"
+}
+
+function getMove {
+  while [ -z "$move" ]; do
+    echo "$explanation"
+    if ! [ -z "$explanation" ]; then
+      echo "$explantation"
+    fi
+    echo -n "Your move: "
+    read input
+    move=`echo "$input" | grep -oE "^[a-h][1-8] [a-h][1-8]$"`
+    if [ ! "$move" ]; then
+      explanation="Invalid move syntax"
+    fi
+  done
+}
+
+function movePiece {
+  srcFile=$1; srcRow=$2; targetFile=$3; targetRow=$4
+
+  # insert blank where src once was
+  eval ${grid[srcRow]}
+  src=${row[srcFile]}
+  row[$srcFile]="blank"
+  list=`echo ${row[@]}`
+  grid[$srcRow]='row=('$list')'
+
+  # replace target with src
+  eval ${grid[targetRow]}
+  target=${row[targetFile]}
+  row[$targetFile]=$src
+  list=`echo ${row[@]}`
+  grid[$targetRow]='row=('$list')'
+
+  if [ $captureAttempt != 0 ]; then
+    captureMessage="Opponent's $target captured!"
+  else
+    captureMessage=""
+  fi
+}
+
+function moveKnight {
+  srcFile=$1; srcRow=$2; targetFile=$3; targetRow=$4
+
+  prevFile=`expr $srcFile - 1`
+  nextFile=`expr $srcFile + 1`
+  prevRow=`expr $srcRow - 1`
+  nextRow=`expr $srcRow + 1`
+
+  jumpPrevFile=`expr $srcFile - 2`
+  jumpNextFile=`expr $srcFile + 2`
+  jumpPrevRow=`expr $srcRow - 2`
+  jumpNextRow=`expr $srcRow + 2`
+
+  if [[ $targetFile = $prevFile && $targetRow = $jumpPrevRow ||
+    $targetFile = $nextFile && $targetRow = $jumpPrevRow ||
+    $targetFile = $jumpNextFile && $targetRow = $prevRow ||
+    $targetFile = $jumpNextFile && $targetRow = $nextRow ||
+    $targetFile = $prevFile && $targetRow = $jumpNextRow ||
+    $targetFile = $nextFile && $targetRow = $jumpNextRow ||
+    $targetFile = $jumpPrevFile && $targetRow = $prevRow ||
+    $targetFile = $jumpPrevFile && $targetRow = $nextRow ]]; then
+
+    echo -n ''
+    # valid move
+
+    # check player's own piece is not in target space
+  else
+    # If move not in set of possible moves
+    invalidMove "Knight can't move that way"
+  fi
+}
+
+function performMove {
+  empty=0
+
+  src=`echo "$1" | cut -d" " -f1`
+  srcRow=`echo "$src" | grep -Eo "[1-8]"`
+  srcRow=`expr $srcRow - 1`
+  srcFile=`echo "$src" | grep -Eo "[a-h]"`
+  getFile $srcFile
+  srcFile=$file
+
+  target=`echo "$1" | cut -d" " -f2`
+  targetRow=`echo "$target" | grep -Eo "[1-8]"`
+  targetRow=`expr $targetRow - 1`
+  targetFile=`echo "$target" | grep -Eo "[a-h]"`
+  getFile $targetFile
+  targetFile=$file
+
+  if [ "$file" = "error" ]; then
+    invalidMove "Cannot parse out file"
+  else
+    eval ${grid[srcRow]}
+    piece=${row[srcFile]}
+    pieceColor=`echo "$piece" | grep -Eo "[A-Z]"`
+    if [[ -z "$pieceColor" && "$piece" != "blank" ]]; then
+      pieceColor="white"
+    elif [ "$piece" != "blank" ]; then
+      pieceColor="black"
+    fi
+
+    eval ${grid[targetRow]}
+    targetPiece=${row[targetFile]}
+    targetPieceColor=`echo "$targetPiece" | grep -Eo "[A-Z]"`
+    if [[ -z "$targetPieceColor" && "$targetPiece" != "blank" ]]; then
+      targetPieceColor="white"
+    elif [ "$targetPiece" != "blank" ]; then
+      targetPieceColor="black"
+    fi
+    if [[ "$targetPiece" != "blank" && "$targetPieceColor" != "$myColor" ]]; then
+      captureAttempt=1
+    else
+      captureAttempt=0
+    fi
+
+    if [ "$piece" = "blank" ]; then
+      invalidMove "There's no piece there"
+    elif [ "$pieceColor" != "$myColor" ]; then
+      echo "$pieceColor"
+      invalidMove "That's not your piece"
+    elif [ "$targetPieceColor" = "$myColor" ]; then
+      invalidMove "You can't capture your own piece"
+    elif [ "$piece" = "PAWN" ]; then
+      movePawn $srcFile $srcRow $targetFile $targetRow
+    elif [ "$piece" = "ROOK" ]; then
+      moveRook $srcFile $srcRow $targetFile $targetRow
+    elif [ "$piece" = "KNIGHT" ]; then
+      moveKnight $srcFile $srcRow $targetFile $targetRow
+      movePiece $srcFile $srcRow $targetFile $targetRow
+    elif [ "$piece" = "BISHOP" ]; then
+      moveBishop $srcFile $srcRow $targetFile $targetRow
+    elif [ "$piece" = "KING" ]; then
+      moveKing $srcFile $srcRow $targetFile $targetRow
+    elif [ "$piece" = "QUEEN" ]; then
+      moveQueen $srcFile $srcRow $targetFile $targetRow
+    fi
+  fi
+}
+
+drawBoard
+myColor="black"
+while [[ -z "$move" || "$move" = "invalid" ]]; do
+  move=""
+  getMove
+  performMove "$move"
+  if [ "$move" != "invalid" ]; then
+    if ! [ -z "$captureMessage" ]; then
+      echo $captureMessage
+      echo
+    fi
+    drawBoard
+    move=""
+  fi
+done
