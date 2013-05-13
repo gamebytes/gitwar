@@ -11,6 +11,26 @@ grid=(
 'row=(ROOK KNIGHT BISHOP KING QUEEN BISHOP KNIGHT ROOK)'
 )
 
+function flipGrid {
+  i=7
+  newGrid=()
+  for j in {0..7}; do
+    newRow=()
+    k=7
+    eval ${grid[j]}
+    for w in {0..7}; do
+      newRow[$k]=${row[w]}
+      k=`expr $k - 1`
+    done
+
+    newGrid[$i]='row=('${newRow[@]}')'
+    i=`expr $i - 1`
+  done
+  for j in {0..7}; do
+    grid[$j]=${newGrid[j]}
+  done
+}
+
 function getPiece {
   if [ "$1" = "king" ]; then
     piece=`echo -e "\xE2\x99\x94"`
@@ -434,6 +454,7 @@ function moveQueen {
 }
 
 function performMove {
+  color=$2
   empty=0
 
   src=`echo "$1" | cut -d" " -f1`
@@ -460,6 +481,7 @@ function performMove {
       pieceColor="white"
     elif [ "$piece" != "blank" ]; then
       pieceColor="black"
+      lastMovedPiece=$piece
     fi
 
     eval ${grid[targetRow]}
@@ -479,9 +501,9 @@ function performMove {
     swapForQueen="0"
     if [ "$piece" = "blank" ]; then
       invalidMove "There's no piece there"
-    elif [ "$pieceColor" != "$myColor" ]; then
+    elif [ "$pieceColor" != "$color" ]; then
       invalidMove "That's not your piece"
-    elif [ "$targetPieceColor" = "$myColor" ]; then
+    elif [ "$targetPieceColor" = "$color" ]; then
       invalidMove "You can't capture your own piece"
     elif [ "$piece" = "PAWN" ]; then
       movePawn $srcFile $srcRow $targetFile $targetRow
@@ -508,19 +530,88 @@ function performMove {
   fi
 }
 
+function badLogfileSyntax {
+  echo
+  echo "gitwar.log has incorrect syntax!"
+  echo
+  exit
+}
+
+function loadGame {
+  while read line; do
+    myLine=`echo "$line" | grep "$me"`
+    opponentLine=`echo "$line" | grep "$opponent"`
+    if ! [ -z "$myLine" ]; then
+      move=`echo "$line" | cut -d, -f3`
+      performMove "$move" "$myColor"
+      if [ "$move" = "invalid" ]; then
+        badLogfileSyntax
+      else
+        color=$opponentColor
+        flipGrid
+      fi
+    elif ! [ -z "$opponentLine" ]; then
+      move=`echo "$line" | cut -d, -f3`
+      performMove "$move" "$opponentColor"
+      if [ "$move" = "invalid" ]; then
+        badLogfileSyntax
+      else
+        color=$myColor
+        flipGrid
+      fi
+    else
+      badLogfileSyntax
+    fi
+    move=""
+  done < <(sed 1d "$logfile")
+}
+
+# Initialize some gitwar stuff
+logfile="gitwar.log"
+log=`cat gitwar.log`
+me=`git config "user.name"`
+users1=`head -1 gitwar.users`
+users2=`tail -1 gitwar.users`
+
+# Check that the user can play and get the opponent's score
+user1=`echo $users1 | cut -d" " -f1`
+user2=`echo $users2 | cut -d" " -f1`
+if [ "$me" = "$user1" ]; then
+  opponent="$user2"
+  myColor=`echo $users1 | cut -d" " -f2`
+  opponentColor=`echo $users2 | cut -d" " -f2`
+elif [ "$me" = "$user2" ]; then
+  opponent="$user1"
+  myColor=`echo $users2 | cut -d" " -f2`
+  opponentColor=`echo $users1 | cut -d" " -f2`
+else
+  echo "You are not a player in this game. Check your git config for your 'user.name' setting. It should match one of the names in the gitwar.users file"
+  echo
+  exit
+fi
+
+# Actual game stuff
+loadGame
 drawBoard
-myColor="black"
+
+# Game loop
 while [[ -z "$move" || "$move" = "invalid" ]]; do
   move=""
   getMove
-  performMove "$move"
+  performMove "$move" "$myColor"
   if [ "$move" != "invalid" ]; then
     if ! [ -z "$captureMessage" ]; then
       echo
       echo $captureMessage
       echo
     fi
-    drawBoard
+
+    # save to gitwar.log
+    echo "`date "+%Y-%m-%d %H:%M:%S %z"`,$me,$move" >> gitwar.log
+
     move=""
+    drawBoard
+
+    ../gitwar
   fi
 done
