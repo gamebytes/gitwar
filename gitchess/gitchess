@@ -4,11 +4,11 @@ grid=(
 'row=(rook knight bishop queen king bishop knight rook)'
 'row=(pawn pawn pawn pawn pawn pawn pawn pawn)'
 'row=(blank blank blank blank blank blank blank blank)'
-'row=(blank blank blank blank PAWN blank blank ROOK)'
+'row=(blank blank blank blank blank blank blank blank)'
 'row=(blank blank blank blank blank blank blank blank)'
 'row=(blank blank blank blank blank blank blank blank)'
 'row=(PAWN PAWN PAWN PAWN PAWN PAWN PAWN PAWN)'
-'row=(ROOK KNIGHT BISHOP KING QUEEN BISHOP KNIGHT blank)'
+'row=(ROOK KNIGHT BISHOP KING QUEEN BISHOP KNIGHT ROOK)'
 )
 
 function getPiece {
@@ -207,6 +207,101 @@ function checkHorizontalPath {
   fi
 }
 
+function checkDiagonalPath {
+  # assume srcRow = targetRow
+  srcFile=$1; srcRow=$2; targetFile=$3; targetRow=$4
+
+  fileDiff=`expr $targetFile - $srcFile`
+  rowDiff=`expr $targetRow - $srcRow`
+
+  if [[ "$fileDiff" -gt "0" && "$rowDiff" -gt "0" ]]; then
+    i=1
+    j=1
+    while [[ "$i" -lt $fileDiff && "$j" -lt $rowDiff ]]; do
+      fileIdx=`expr $srcFile + $i`
+      rowIdx=`expr $srcRow + $j`
+
+      eval ${grid[rowIdx]}
+      piece=${row[fileIdx]}
+
+      if [ "$piece" != "blank" ]; then
+        row=`echo $rowIdx | tr 01234567 12345678`
+        file=`echo $fileIdx | tr 01234567 abcdefgh`
+        invalidMove "There is a piece in between those two points: $piece $file$row"
+        # break
+        i=$fileDiff
+      fi
+
+      i=`expr $i + 1`
+      j=`expr $j + 1`
+    done
+  elif [[ "$fileDiff" -gt "0" && "$rowDiff" -le "0" ]]; then
+    i=1
+    j="-1"
+    while [[ "$i" -lt $fileDiff && "$j" -gt $rowDiff ]]; do
+      fileIdx=`expr $srcFile + $i`
+      rowIdx=`expr $srcRow + $j`
+
+      eval ${grid[rowIdx]}
+      piece=${row[fileIdx]}
+
+      if [ "$piece" != "blank" ]; then
+        row=`echo $rowIdx | tr 01234567 12345678`
+        file=`echo $fileIdx | tr 01234567 abcdefgh`
+        invalidMove "There is a piece in between those two points: $piece $file$row"
+        # break
+        i=$fileDiff
+      fi
+
+      i=`expr $i + 1`
+      j=`expr $j - 1`
+    done
+  elif [[ "$fileDiff" -le "0" && "$rowDiff" -gt "0" ]]; then
+    i="-1"
+    j=1
+    while [[ "$i" -gt $fileDiff && "$j" -lt $rowDiff ]]; do
+      fileIdx=`expr $srcFile + $i`
+      rowIdx=`expr $srcRow + $j`
+
+      eval ${grid[rowIdx]}
+      piece=${row[fileIdx]}
+
+      if [ "$piece" != "blank" ]; then
+        row=`echo $rowIdx | tr 01234567 12345678`
+        file=`echo $fileIdx | tr 01234567 abcdefgh`
+        invalidMove "There is a piece in between those two points: $piece $file$row"
+        # break
+        i=$fileDiff
+      fi
+
+      i=`expr $i - 1`
+      j=`expr $j + 1`
+    done
+  else
+    # "$fileDiff" -le "0" && "$rowDiff" -le "0"
+    i="-1"
+    j="-1"
+    while [[ "$i" -gt $fileDiff && "$j" -gt $rowDiff ]]; do
+      fileIdx=`expr $srcFile + $i`
+      rowIdx=`expr $srcRow + $j`
+
+      eval ${grid[rowIdx]}
+      piece=${row[fileIdx]}
+
+      if [ "$piece" != "blank" ]; then
+        row=`echo $rowIdx | tr 01234567 12345678`
+        file=`echo $fileIdx | tr 01234567 abcdefgh`
+        invalidMove "There is a piece in between those two points: $piece $file$row"
+        # break
+        i=$fileDiff
+      fi
+
+      i=`expr $i - 1`
+      j=`expr $j - 1`
+    done
+  fi
+}
+
 queenAlive="1"
 function movePawn {
   srcFile=$1; srcRow=$2; targetFile=$3; targetRow=$4
@@ -292,12 +387,49 @@ function moveRook {
 
   if [[ ( $rowDiff -gt 0 && $fileDiff -gt 0 ) || ( $rowDiff = 0 && $fileDiff = 0 ) ]]; then
     invalidMove "Rook can't move that way"
-  fi
-
-  if [ $fileDiff = "0" ]; then
+  elif [ $fileDiff = "0" ]; then
     checkVerticalPath $srcFile $srcRow $targetFile $targetRow
   else
     checkHorizontalPath $srcFile $srcRow $targetFile $targetRow
+  fi
+}
+
+function moveBishop {
+  srcFile=$1; srcRow=$2; targetFile=$3; targetRow=$4
+
+  rowDiff=`expr $targetRow - $srcRow`
+  rowDiff=`echo ${rowDiff#-}`
+  fileDiff=`expr $targetFile - $srcFile`
+  fileDiff=`echo ${fileDiff#-}`
+
+  if [[ ( $rowDiff != $fileDiff ) || ( $rowDiff = 0 && $fileDiff = 0 ) ]]; then
+    invalidMove "Bishop can't move that way"
+  else
+    checkDiagonalPath $srcFile $srcRow $targetFile $targetRow
+  fi
+}
+
+function moveQueen {
+  srcFile=$1; srcRow=$2; targetFile=$3; targetRow=$4
+
+  rowDiff=`expr $targetRow - $srcRow`
+  rowDiff=`echo ${rowDiff#-}`
+  fileDiff=`expr $targetFile - $srcFile`
+  fileDiff=`echo ${fileDiff#-}`
+
+  # combination of rook and bishop
+  if [[ $rowDiff -gt 0 && $fileDiff -gt 0 ]]; then
+    if [[ ( $rowDiff != $fileDiff ) ]]; then
+      invalidMove "Queen can't move that way"
+    else
+      checkDiagonalPath $srcFile $srcRow $targetFile $targetRow
+    fi
+  else
+    if [ $fileDiff = "0" ]; then
+      checkVerticalPath $srcFile $srcRow $targetFile $targetRow
+    else
+      checkHorizontalPath $srcFile $srcRow $targetFile $targetRow
+    fi
   fi
 }
 
