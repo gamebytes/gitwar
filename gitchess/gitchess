@@ -492,7 +492,7 @@ function performMove {
     elif [ "$targetPiece" != "blank" ]; then
       targetPieceColor="black"
     fi
-    if [[ "$targetPiece" != "blank" && "$targetPieceColor" != "$myColor" ]]; then
+    if [[ "$targetPiece" != "blank" && "$targetPieceColor" != "$color" ]]; then
       captureAttempt=1
     else
       captureAttempt=0
