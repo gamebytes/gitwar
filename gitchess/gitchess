@@ -571,6 +571,15 @@ function badLogfileSyntax {
 }
 
 function loadGame {
+  # flipBoard before we start if white took first turn
+  firstLine=`sed 1d "$logfile" | head -1`
+  myLine=`echo "$firstLine" | grep "$me"`
+  opponentLine=`echo "$firstLine" | grep "$opponent"`
+  if [[ ! -z "$myLine" && "$myColor" = "white" || ! -z "$opponentLine" && "$opponentColor" = "white" ]]; then
+    flipBoard
+  fi
+
+  # start reading in logfile and perform moves
   while read line; do
     myLine=`echo "$line" | grep "$me"`
     opponentLine=`echo "$line" | grep "$opponent"`
@@ -584,6 +593,7 @@ function loadGame {
       fi
     elif ! [ -z "$opponentLine" ]; then
       move=`echo "$line" | cut -d, -f3`
+      echo $move
       performMove "$move" "$opponentColor"
       if [ "$move" = "invalid" ]; then
         badLogfileSyntax
@@ -595,6 +605,9 @@ function loadGame {
     fi
     move=""
   done < <(sed 1d "$logfile")
+
+  # if the last line is a log of your move
+  # then it's your opponent's turn and we have to wait
   lastLine=`tail -1 "$logfile" | grep "$me"`
   if ! [ -z "$lastLine" ]; then
     echo -n "Looks like it's not your turn. "
