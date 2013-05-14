@@ -404,7 +404,7 @@ function moveKnight {
 
 function rookReady {
   eval ${grid[7]}
-  if [ ${row[7]} = "ROOK" ]; then
+  if [[ ${row[7]} = "ROOK" && "$myColor" = "black" || ${row[7]} = "rook" && "$myColor" = "white" ]]; then
     rookReady="1"
   else
     rookReady="0"
@@ -540,21 +540,21 @@ function performMove {
       invalidMove "That's not your piece"
     elif [ "$targetPieceColor" = "$color" ]; then
       invalidMove "You can't capture your own piece"
-    elif [ "$piece" = "PAWN" ]; then
+    elif [[ "$piece" = "PAWN" || "$piece" = "pawn" ]]; then
       movePawn $srcFile $srcRow $targetFile $targetRow
       if [[ $move != "invalid" && $targetRow = "0" && $queenAlive != "1" ]]; then
         # Queen swap
         swapForQueen="1"
       fi
-    elif [ "$piece" = "ROOK" ]; then
+    elif [[ "$piece" = "ROOK" || "$piece" = "rook" ]]; then
       moveRook $srcFile $srcRow $targetFile $targetRow
-    elif [ "$piece" = "KNIGHT" ]; then
+    elif [[ "$piece" = "KNIGHT" || "$piece" = "knight" ]]; then
       moveKnight $srcFile $srcRow $targetFile $targetRow
-    elif [ "$piece" = "BISHOP" ]; then
+    elif [[ "$piece" = "BISHOP" || "$piece" = "bishop" ]]; then
       moveBishop $srcFile $srcRow $targetFile $targetRow
-    elif [ "$piece" = "KING" ]; then
+    elif [[ "$piece" = "KING" || "$piece" = "king" ]]; then
       moveKing $srcFile $srcRow $targetFile $targetRow
-    elif [ "$piece" = "QUEEN" ]; then
+    elif [[ "$piece" = "QUEEN" || "$piece" = "queen" ]]; then
       moveQueen $srcFile $srcRow $targetFile $targetRow
     fi
 
