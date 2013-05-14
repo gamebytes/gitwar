@@ -340,7 +340,6 @@ function checkDiagonalPath {
   fi
 }
 
-queenAlive="1"
 function movePawn {
   srcFile=$1; srcRow=$2; targetFile=$3; targetRow=$4
 
@@ -542,7 +541,7 @@ function performMove {
       invalidMove "You can't capture your own piece"
     elif [[ "$piece" = "PAWN" || "$piece" = "pawn" ]]; then
       movePawn $srcFile $srcRow $targetFile $targetRow
-      if [[ $move != "invalid" && $targetRow = "0" && $queenAlive != "1" ]]; then
+      if [[ $move != "invalid" && $targetRow = "0" ]]; then
         # Queen swap
         swapForQueen="1"
       fi
