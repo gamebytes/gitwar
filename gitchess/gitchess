@@ -140,7 +140,7 @@ function movePiece {
   grid[$targetRow]='row=('$list')'
 
   src=`echo $src | tr [a-z] [A-Z]`
-  target=`echo $src | tr [a-z] [A-Z]`
+  target=`echo $target | tr [a-z] [A-Z]`
   if [ $captureAttempt != 0 ]; then
     captureMessage="Opponent's $target captured!"
     commitMessage="$me's $src captured $opponent's $target!"
