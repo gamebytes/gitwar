@@ -3,4 +3,4 @@ Gitchess
 
 Git-based chess game
 
-![](githcess.png)
+![](gitchess.png)
