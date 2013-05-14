@@ -595,7 +595,6 @@ function loadGame {
       fi
     elif ! [ -z "$opponentLine" ]; then
       move=`echo "$line" | cut -d, -f3`
-      echo $move
       performMove "$move" "$opponentColor"
       if [ "$move" = "invalid" ]; then
         badLogfileSyntax
