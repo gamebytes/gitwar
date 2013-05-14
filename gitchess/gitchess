@@ -593,8 +593,15 @@ function loadGame {
     echo -n "Looks like it's not your turn. "
     # Call gitwar to wait for opponent
     ../gitwar -w
-
     echo
+
+    move=`tail -1 "$logfile" | cut -d, -f3`
+    # Don't need to flipboard before the move because we already
+    # flipped after we processed our last move
+    color=$opponentColor
+    performMove "$move" "$opponentColor"
+    flipBoard
+    move=""
   fi
 }
 
