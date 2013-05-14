@@ -139,10 +139,12 @@ function movePiece {
   list=`echo ${row[@]}`
   grid[$targetRow]='row=('$list')'
 
+  src=`echo $src | tr [a-z] [A-Z]`
+  target=`echo $src | tr [a-z] [A-Z]`
   if [ $captureAttempt != 0 ]; then
     captureMessage="Opponent's $target captured!"
-    commitMessage="$me captured $opponent's $target!"
-    commitMessageYours="$me captured your $target!"
+    commitMessage="$me's $src captured $opponent's $target!"
+    commitMessageYours="$me's $src captured your $target!"
   else
     captureMessage=""
     commitMessage="$me moved a $src"
