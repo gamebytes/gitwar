@@ -680,6 +680,7 @@ function loadGame {
     if ! [ -z "$myLine" ]; then
       move=`echo "$line" | cut -d, -f3`
       if [[ "$move" = '!' ]]; then
+        drawBoard
         echo
         echo "CHECKMATE! $opponent wins!"
         echo
@@ -695,6 +696,7 @@ function loadGame {
     elif ! [ -z "$opponentLine" ]; then
       move=`echo "$line" | cut -d, -f3`
       if [[ "$move" = '!' ]]; then
+        drawBoard
         echo
         echo "CHECKMATE! You win!"
         echo
@@ -804,13 +806,20 @@ while [[ -z "$move" || "$move" = "invalid" ]]; do
 
       # Just got a move from our opponent
       move=`tail -1 "$logfile" | cut -d, -f3`
-      flipBoard
-      color=$opponentColor
-      performMove "$move" "$opponentColor"
-      flipBoard
-      move=""
-      drawBoard
-      echo "$commitMessageYours"
+      if [[ "$move" = '!' ]]; then
+        echo
+        echo "CHECKMATE! You win!"
+        echo
+        exit
+      else
+        flipBoard
+        color=$opponentColor
+        performMove "$move" "$opponentColor"
+        flipBoard
+        move=""
+        drawBoard
+        echo "$commitMessageYours"
+      fi
     fi
   fi
 done
