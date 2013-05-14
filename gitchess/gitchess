@@ -561,6 +561,9 @@ function badLogfileSyntax {
 }
 
 function loadGame {
+  echo
+  echo "Loading game..."
+  echo
   while read line; do
     myLine=`echo "$line" | grep "$me"`
     opponentLine=`echo "$line" | grep "$opponent"`
@@ -587,8 +590,7 @@ function loadGame {
   done < <(sed 1d "$logfile")
   lastLine=`tail -1 "$logfile" | grep "$me"`
   if ! [ -z "$lastLine" ]; then
-    echo "Looks like it's not your turn. Please wait for your opponent to mave their move..."
-    echo
+    echo -n "Looks like it's not your turn. "
     # Call gitwar to wait for opponent
     ../gitwar -w
 
