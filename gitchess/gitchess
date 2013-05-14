@@ -141,8 +141,10 @@ function movePiece {
 
   if [ $captureAttempt != 0 ]; then
     captureMessage="Opponent's $target captured!"
+    commitMessage="$me captured $opponent's $target!"
   else
     captureMessage=""
+    commitMessage="$me moved a $src"
   fi
 
   if [ $swapKingAndRook = "1" ]; then
@@ -660,7 +662,7 @@ while [[ -z "$move" || "$move" = "invalid" ]]; do
     drawBoard
 
     echo
-    ../gitwar "$me took turn"
+    ../gitwar "$commitMessage"
 
     # Just got a move from our opponent
     move=`tail -1 "$logfile" | cut -d, -f3`
@@ -670,5 +672,6 @@ while [[ -z "$move" || "$move" = "invalid" ]]; do
     flipBoard
     move=""
     drawBoard
+    echo "$commitMessage"
   fi
 done
