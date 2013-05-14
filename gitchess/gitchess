@@ -1,14 +1,14 @@
 #!/bin/bash
 
 grid=(
-'row=(rook knight bishop queen king bishop knight rook)'
+'row=(rook knight bishop king queen bishop knight rook)'
 'row=(pawn pawn pawn pawn pawn pawn pawn pawn)'
 'row=(blank blank blank blank blank blank blank blank)'
 'row=(blank blank blank blank blank blank blank blank)'
 'row=(blank blank blank blank blank blank blank blank)'
 'row=(blank blank blank blank blank blank blank blank)'
 'row=(PAWN PAWN PAWN PAWN PAWN PAWN PAWN PAWN)'
-'row=(ROOK KNIGHT BISHOP KING QUEEN BISHOP KNIGHT ROOK)'
+'row=(ROOK KNIGHT BISHOP QUEEN KING BISHOP KNIGHT ROOK)'
 )
 
 function flipBoard {
@@ -104,7 +104,8 @@ function getMove {
     fi
     echo -n "Your move: "
     read input
-    move=`echo "$input" | grep -oE "^[a-h][1-8] [a-h][1-8]$"`
+    move=`echo "$input" | grep -oE "^[a-h][1-8]\s*[a-h][1-8]$"`
+    move=`echo $move | sed 's/\s*//g'`
     if [ ! "$move" ]; then
       explanation="Invalid move syntax"
     fi
@@ -136,6 +137,11 @@ function movePiece {
     captureMessage="Opponent's $target captured!"
   else
     captureMessage=""
+  fi
+
+  if [ $swapKingAndRook = "1" ]; then
+    swapKingAndRook="0"
+    movePiece "7" "7" "5" "7" "0"
   fi
 }
 
@@ -384,16 +390,31 @@ function moveKnight {
   fi
 }
 
+function rookReady {
+  eval ${grid[7]}
+  if [ ${row[7]} = "ROOK" ]; then
+    rookReady="1"
+  else
+    rookReady="0"
+  fi
+}
+
 function moveKing {
   srcFile=$1; srcRow=$2; targetFile=$3; targetRow=$4
 
-  rowDiff=`expr $targetRow - $srcRow`
-  rowDiff=`echo ${rowDiff#-}`
-  fileDiff=`expr $targetFile - $srcFile`
-  fileDiff=`echo ${fileDiff#-}`
+  rookReady
 
-  if [[ "$rowDiff" -gt "1" || $fileDiff -gt "1" ]]; then
-    invalidMove "King can't move that way"
+  if [[ $srcRow != "7" || $targetRow != "7" || $srcFile != "4" || $targetFile != "6" || $rookReady != "1" ]]; then
+    rowDiff=`expr $targetRow - $srcRow`
+    rowDiff=`echo ${rowDiff#-}`
+    fileDiff=`expr $targetFile - $srcFile`
+    fileDiff=`echo ${fileDiff#-}`
+
+    if [[ "$rowDiff" -gt "1" || $fileDiff -gt "1" ]]; then
+      invalidMove "King can't move that way"
+    fi
+  else
+    swapKingAndRook="1"
   fi
 }
 
@@ -454,17 +475,19 @@ function moveQueen {
 }
 
 function performMove {
+  move=$1
   color=$2
+  swapKingAndRook="0"
   empty=0
 
-  src=`echo "$1" | cut -d" " -f1`
+  src=`echo ${move:0:2}`
   srcRow=`echo "$src" | grep -Eo "[1-8]"`
   srcRow=`expr $srcRow - 1`
   srcFile=`echo "$src" | grep -Eo "[a-h]"`
   getFile $srcFile
   srcFile=$file
 
-  target=`echo "$1" | cut -d" " -f2`
+  target=`echo ${move:2:4}`
   targetRow=`echo "$target" | grep -Eo "[1-8]"`
   targetRow=`expr $targetRow - 1`
   targetFile=`echo "$target" | grep -Eo "[a-h]"`
@@ -547,7 +570,6 @@ function loadGame {
       if [ "$move" = "invalid" ]; then
         badLogfileSyntax
       else
-        color=$opponentColor
         flipBoard
       fi
     elif ! [ -z "$opponentLine" ]; then
@@ -556,7 +578,6 @@ function loadGame {
       if [ "$move" = "invalid" ]; then
         badLogfileSyntax
       else
-        color=$myColor
         flipBoard
       fi
     else
@@ -568,7 +589,6 @@ function loadGame {
 
 # Initialize some gitwar stuff
 logfile="gitwar.log"
-log=`cat gitwar.log`
 me=`git config "user.name"`
 users1=`head -1 gitwar.users`
 users2=`tail -1 gitwar.users`
@@ -607,20 +627,18 @@ while [[ -z "$move" || "$move" = "invalid" ]]; do
     fi
 
     # save to gitwar.log
-    echo "`date "+%Y-%m-%d %H:%M:%S %z"`,$me,$move" >> gitwar.log
+    echo "`date "+%Y-%m-%d %H:%M:%S %z"`,$me,$move" >> "$logfile"
 
     move=""
     drawBoard
 
     ../gitwar "$me took turn"
 
+    # Just got a move from our opponent
     move=`tail -1 "$logfile" | cut -d, -f3`
-    actingUser=`tail -1 "$logfile" | cut -d, -f2`
-    if [ "$actingUser" = "$opponent" ]; then
-      flipBoard
-      color=$opponentColor
-      performMove "$move" "$opponentColor"
-      flipBoard
-    fi
+    flipBoard
+    color=$opponentColor
+    performMove "$move" "$opponentColor"
+    flipBoard
   fi
 done
