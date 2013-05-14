@@ -629,8 +629,10 @@ while [[ -z "$move" || "$move" = "invalid" ]]; do
     # save to gitwar.log
     echo "`date "+%Y-%m-%d %H:%M:%S %z"`,$me,$move" >> "$logfile"
 
+    echo
     drawBoard
 
+    echo
     ../gitwar "$me took turn"
 
     # Just got a move from our opponent
@@ -640,5 +642,6 @@ while [[ -z "$move" || "$move" = "invalid" ]]; do
     performMove "$move" "$opponentColor"
     flipBoard
     move=""
+    drawBoard
   fi
 done
