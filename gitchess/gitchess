@@ -11,6 +11,7 @@ grid=(
 'row=(ROOK KNIGHT BISHOP QUEEN KING BISHOP KNIGHT ROOK)'
 )
 
+blackDown=1
 function flipBoard {
   i=7
   newGrid=()
@@ -29,6 +30,11 @@ function flipBoard {
   for j in {0..7}; do
     grid[$j]=${newGrid[j]}
   done
+  if [ "$blackDown" = "1" ]; then
+    blackDown=0
+  else
+    blackDown=1
+  fi
 }
 
 function getPiece {
@@ -630,6 +636,9 @@ fi
 
 # Actual game stuff
 loadGame
+if [[ "$blackDown" = "1" && "$myColor" = "white" ]]; then
+  flipBoard
+fi
 drawBoard
 
 # Game loop
