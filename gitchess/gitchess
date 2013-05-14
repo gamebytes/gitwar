@@ -585,6 +585,15 @@ function loadGame {
     fi
     move=""
   done < <(sed 1d "$logfile")
+  lastLine=`tail -1 "$logfile" | grep "$me"`
+  if ! [ -z "$lastLine" ]; then
+    echo "Looks like it's not your turn. Please wait for your opponent to mave their move..."
+    echo
+    # Call gitwar to wait for opponent
+    ../gitwar -w
+
+    echo
+  fi
 }
 
 # Initialize some gitwar stuff
