@@ -110,6 +110,10 @@ function getMove {
       echo "$explanation"
       echo
     fi
+    if [[ ! -z "$commitMessageYours" ]]; then
+      echo "$commitMessageYours"
+      echo
+    fi
     if [[ "$inCheck" = "1" ]]; then
       echo "You are in check. Your next move must get you out of check.
 If you cannot get out of check, simply type \"!\" to signify a Checkmate."
@@ -836,7 +840,6 @@ while [[ -z "$move" || "$move" = "invalid" ]]; do
         flipBoard
         move=""
         drawBoard
-        echo "$commitMessageYours"
       fi
     fi
   fi
