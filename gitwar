@@ -4,7 +4,7 @@ continue='Already up-to-date.'
 
 function submitTurn {
   echo 'Submitting game data...'
-  git add gitwar.log &> /dev/null
+  git add gitwar.game &> /dev/null
   git commit -m "$1" &> /dev/null
   if ! [ -z "$2" ]; then
     git notes add -m "$2" &> /dev/null
@@ -13,7 +13,7 @@ function submitTurn {
 }
 
 function silentSubmit {
-  git add gitwar.log &> /dev/null
+  git add gitwar.game &> /dev/null
   git commit -m "$1" &> /dev/null
   git push origin master &> /dev/null
 }
