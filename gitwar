@@ -48,7 +48,7 @@ function log {
   githead=`tail -1 gitwar.games`
   logformat="%cd,%cn,%N"
   log=`git log --pretty="$logformat" "$githead"..`
-  echo $log
+  echo "$log"
 }
 
 if [ "$1" = "-w" ]; then
