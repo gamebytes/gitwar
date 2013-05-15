@@ -696,7 +696,6 @@ function loadGame {
 
   # start reading in logfile and perform moves
   while read line; do
-    echo $line
     if ! [ -z "$line" ]; then
       myLine=`echo "$line" | grep "$me"`
       opponentLine=`echo "$line" | grep "$opponent"`
@@ -808,9 +807,9 @@ echo -n "Loading game..."
 ../gitwar -p
 githead=`tail -1 gitwar.games`
 logformat="%cd,%cn,%b"
-log=`git log --pretty="$logformat" "$githead"..`
-firstLine=`echo "$log" | tail -1`
-lastLine=`echo "$log" | head -1`
+log=`git log --pretty="$logformat" "$githead".. | head -n -1 | tac`
+firstLine=`echo "$log" | head -1`
+lastLine=`echo "$log" | tail -1`
 loadGame
 if [[ "$blackDown" = "1" && "$myColor" = "white" ]]; then
   flipBoard
