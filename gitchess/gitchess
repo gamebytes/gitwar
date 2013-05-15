@@ -705,6 +705,7 @@ function loadGame {
       else
         performMove "$move" "$opponentColor"
         if [ "$move" = "invalid" ]; then
+          echo "$explanation"
           badLogfileSyntax
         else
           flipBoard
