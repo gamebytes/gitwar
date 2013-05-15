@@ -9,8 +9,8 @@ Git, shell scripting, and playing games has never been so... weird.
 ## Games
 
 1. [Gitfight](http://github.com/gitwar/gitwar/tree/master/gitfight)
-2. Gitchess - TBD
-3. Gitcastle - TBD
+2. [Gitchess](http://github.com/gitwar/gitwar/tree/master/gitchess)
+3. Gitcastle - Coming Soon
 
 ## How to play
 
