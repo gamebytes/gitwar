@@ -695,6 +695,7 @@ function loadGame {
   fi
 
   # start reading in logfile and perform moves
+  echo "$log"
   while read line; do
     if ! [ -z "$line" ]; then
       myLine=`echo "$line" | grep "$me"`
@@ -736,9 +737,6 @@ function loadGame {
           fi
         fi
       else
-        echo $line
-        echo $me
-        echo $opponent
         badLogfileSyntax
       fi
       lastMove=$move
@@ -845,7 +843,8 @@ while [[ -z "$move" || "$move" = "invalid" ]]; do
       echo "$board
 $commitMessage
 $oldLog" > gitwar.log
-      ../gitwar "$commitMessage" `echo "$commitMove" | tr "\n" " "`
+      commitMove=`echo "$commitMove" | tr "\n" " "`
+      ../gitwar "$commitMessage" "$commitMove"
       log=`git log --pretty="$logformat" "$githead"..`
 
       # Just got a move from our opponent
