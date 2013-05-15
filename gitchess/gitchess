@@ -695,7 +695,6 @@ function loadGame {
   fi
 
   # start reading in logfile and perform moves
-  echo "$log"
   while read line; do
     if ! [ -z "$line" ]; then
       myLine=`echo "$line" | grep "$me"`
