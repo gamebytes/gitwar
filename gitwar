@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 continue='Already up-to-date.'
 
 function submitTurn {
