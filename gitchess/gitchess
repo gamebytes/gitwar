@@ -696,6 +696,7 @@ function loadGame {
 
   # start reading in logfile and perform moves
   while read line; do
+    echo $line
     if ! [ -z "$line" ]; then
       myLine=`echo "$line" | grep "$me"`
       opponentLine=`echo "$line" | grep "$opponent"`
@@ -771,7 +772,9 @@ function checkMate {
   echo "Sending data..."
 
   echo "`date "+%Y-%m-%d %H:%M:%S %z"`,$me,!" >> "$logfile"
-  ../gitwar -s
+  ../gitwar -s "$me gave up!
+
+!"
 
   exit
 }
