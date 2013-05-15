@@ -1,14 +1,14 @@
 #!/bin/bash
 
 grid=(
-'row=(rook knight bishop king queen blank knight blank)'
+'row=(rook knight bishop king queen bishop knight rook)'
 'row=(pawn pawn pawn pawn pawn pawn pawn pawn)'
 'row=(blank blank blank blank blank blank blank blank)'
 'row=(blank blank blank blank blank blank blank blank)'
-'row=(blank blank blank rook blank blank blank bishop)'
 'row=(blank blank blank blank blank blank blank blank)'
-'row=(PAWN PAWN PAWN blank PAWN blank PAWN PAWN)'
-'row=(ROOK KNIGHT BISHOP blank KING BISHOP KNIGHT ROOK)'
+'row=(blank blank blank blank blank blank blank blank)'
+'row=(PAWN PAWN PAWN PAWN PAWN PAWN PAWN PAWN)'
+'row=(ROOK KNIGHT BISHOP QUEEN KING BISHOP KNIGHT ROOK)'
 )
 
 blackDown=1
@@ -110,6 +110,8 @@ function getMove {
       echo "$explantation"
       echo
     fi
+    clear
+    drawBoard
     echo -n "Your move: "
     read input
     move=`echo "$input" | grep -oE "(^[a-h][1-8]\s*[a-h][1-8]$|^\!$)"`
