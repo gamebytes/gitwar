@@ -113,6 +113,7 @@ function getMove {
     if [[ ! -z "$commitMessageYours" ]]; then
       echo "$commitMessageYours"
       echo
+      commitMessageYours=''
     fi
     if [[ "$inCheck" = "1" ]]; then
       echo "You are in check. Your next move must get you out of check.
