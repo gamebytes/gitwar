@@ -111,6 +111,10 @@ function getMove {
       echo "$explanation"
       echo
     fi
+    if [[ "$inCheck" = "1" ]]; then
+      echo "You are in check. Your next move must get you out of check.
+If you cannot get out of check, simply type \"!\" to signify a Checkmate."
+    fi
     echo -n "Your move: "
     read input
     move=`echo "$input" | grep -oE "(^[a-h][1-8]\s*[a-h][1-8]$|^\!$)"`
@@ -564,12 +568,12 @@ function performMove {
   checkState $color
   move=$backupMove
 
-  if [ $inCheck = "1" ]; then
-    backupBoard=()
-    for j in {0..7}; do
-      backupBoard[$j]=${grid[j]}
-    done
-  fi
+  backupBoard=()
+  for j in {0..7}; do
+    backupBoard[$j]=${grid[j]}
+  done
+
+  wasInCheck=$inCheck
 
   src=`echo ${move:0:2}`
   srcRow=`echo "$src" | grep -Eo "[1-8]"`
@@ -641,18 +645,16 @@ function performMove {
       movePiece $srcFile $srcRow $targetFile $targetRow $swapForQueen
       explanation=""
 
+      backupMove=$move
+      checkState $color
+      move=$backupMove
       if [ "$inCheck" = "1" ]; then
-        backupMove=$move
-        checkState $color
-        move=$backupMove
-        if [ "$inCheck" = "1" ]; then
-          grid=()
-          for j in {0..7}; do
-            grid[$j]=${backupBoard[j]}
-          done
-          invalidMove "You are in check. Your next move must get you out of check.
-If you cannot get out of checkmate, simply type \"!\" to signify a Checkmate."
-        fi
+        grid=()
+        for j in {0..7}; do
+          grid[$j]=${backupBoard[j]}
+        done
+        invalidMove "That puts you in check."
+        inCheck=$wasInCheck
       fi
     fi
   fi
