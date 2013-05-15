@@ -696,53 +696,54 @@ function loadGame {
 
   # start reading in logfile and perform moves
   while read line; do
-    echo '|'$line'|'
-    myLine=`echo "$line" | grep "$me"`
-    opponentLine=`echo "$line" | grep "$opponent"`
-    if ! [ -z "$myLine" ]; then
-      move=`echo "$line" | cut -d, -f3`
-      if [[ "$move" = '!' ]]; then
-        drawBoard
-        echo
-        echo "CHECKMATE! $opponent wins!"
-        echo
-        exit
-      elif [[ "$move" = "RESET" ]]; then
-        : # noop
-      else
-        performMove "$move" "$myColor"
-        if [ "$move" = "invalid" ]; then
-          badLogfileSyntax
+    if ! [ -z "$line" ]; then
+      myLine=`echo "$line" | grep "$me"`
+      opponentLine=`echo "$line" | grep "$opponent"`
+      if ! [ -z "$myLine" ]; then
+        move=`echo "$line" | cut -d, -f3`
+        if [[ "$move" = '!' ]]; then
+          drawBoard
+          echo
+          echo "CHECKMATE! $opponent wins!"
+          echo
+          exit
+        elif [[ "$move" = "RESET" ]]; then
+          : # noop
         else
-          flipBoard
+          performMove "$move" "$myColor"
+          if [ "$move" = "invalid" ]; then
+            badLogfileSyntax
+          else
+            flipBoard
+          fi
         fi
-      fi
-    elif ! [ -z "$opponentLine" ]; then
-      move=`echo "$line" | cut -d, -f3`
-      if [[ "$move" = '!' ]]; then
-        drawBoard
-        echo
-        echo "CHECKMATE! You win!"
-        echo
-        exit
-      elif [[ "$move" = "RESET" ]]; then
-        : # noop
-      else
-        performMove "$move" "$opponentColor"
-        if [ "$move" = "invalid" ]; then
-          badLogfileSyntax
+      elif ! [ -z "$opponentLine" ]; then
+        move=`echo "$line" | cut -d, -f3`
+        if [[ "$move" = '!' ]]; then
+          drawBoard
+          echo
+          echo "CHECKMATE! You win!"
+          echo
+          exit
+        elif [[ "$move" = "RESET" ]]; then
+          : # noop
         else
-          flipBoard
+          performMove "$move" "$opponentColor"
+          if [ "$move" = "invalid" ]; then
+            badLogfileSyntax
+          else
+            flipBoard
+          fi
         fi
+      else
+        echo $line
+        echo $me
+        echo $opponent
+        badLogfileSyntax
       fi
-    else
-      echo $line
-      echo $me
-      echo $opponent
-      badLogfileSyntax
+      lastMove=$move
+      move=""
     fi
-    lastMove=$move
-    move=""
   done < <(echo "$log")
 
   # if the last line is a log of your move
