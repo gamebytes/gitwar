@@ -6,6 +6,7 @@ function submitTurn {
   echo 'Submitting game data...'
   git add gitwar.log &> /dev/null
   git commit -m "$1
+
 $2" &> /dev/null
   git push origin master &> /dev/null
 }
@@ -38,6 +39,7 @@ function reset {
   echo "" > gitwar.log
   git add gitwar.games gitwar.log &> /dev/null
   git commit -m 'Resetting game
+
 RESET' &> /dev/null
   git push origin master &> /dev/null
 }
