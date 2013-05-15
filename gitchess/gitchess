@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 grid=(
 'row=(rook knight bishop king queen bishop knight rook)'
 'row=(pawn pawn pawn pawn pawn pawn pawn pawn)'
