@@ -811,6 +811,7 @@ while [[ -z "$move" || "$move" = "invalid" ]]; do
   if [[ "$move" = '!' ]]; then
     checkMate
   else
+    commitMove=$move
     performMove "$move" "$myColor"
     if [ "$move" != "invalid" ]; then
       explanation=""
@@ -825,7 +826,9 @@ while [[ -z "$move" || "$move" = "invalid" ]]; do
       echo "`date "+%Y-%m-%d %H:%M:%S %z"`,$me,$move" >> "$logfile"
 
       # submit and wait
-      ../gitwar "$commitMessage"
+      ../gitwar "$commitMessage
+
+$commitMove"
 
       # Just got a move from our opponent
       move=`tail -1 "$logfile" | cut -d, -f3`
