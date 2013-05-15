@@ -679,14 +679,13 @@ function performMove {
 
 function badLogfileSyntax {
   echo
-  echo "gitwar.log has incorrect syntax!"
+  echo "There was an error processing the git log."
   echo
   exit
 }
 
 function loadGame {
   # flipBoard before we start if white took first turn
-  firstLine=`sed 1d "$logfile" | head -1`
   myLine=`echo "$firstLine" | grep "$me"`
   opponentLine=`echo "$firstLine" | grep "$opponent"`
   if [[ ! -z "$myLine" && "$myColor" = "white" || ! -z "$opponentLine" && "$opponentColor" = "white" ]]; then
@@ -736,19 +735,20 @@ function loadGame {
       badLogfileSyntax
     fi
     move=""
-  done < <(sed 1d "$logfile")
+  done < <(echo "$log")
 
   # if the last line is a log of your move
   # then it's your opponent's turn and we have to wait
-  lastLine=`tail -1 "$logfile" | grep "$me"`
+  lastLine=`echo "$lastLine" | grep "$me"`
   if ! [ -z "$lastLine" ]; then
     echo
     echo -n "Looks like it's not your turn. "
     # Call gitwar to wait for opponent
     ../gitwar -w
+    log=`git log --pretty="$logformat" "$githead"..`
     echo
 
-    move=`tail -1 "$logfile" | cut -d, -f3`
+    move=`echo "$log" | head -1 | cut -d, -f3`
     # Don't need to flipboard before the move because we already
     # flipped after we processed our last move
     color=$opponentColor
@@ -797,6 +797,11 @@ fi
 drawBoard
 echo -n "Loading game..."
 ../gitwar -p
+githead=`tail -1 gitwar.games`
+logformat="%cd,%cn,%N"
+log=`git log --pretty="$logformat" "$githead"..`
+firstLine=`echo "$log" | tail -1`
+lastLine=`ehco "$log" | head -1`
 loadGame
 if [[ "$blackDown" = "1" && "$myColor" = "white" ]]; then
   flipBoard
@@ -823,15 +828,14 @@ while [[ -z "$move" || "$move" = "invalid" ]]; do
       fi
 
       # save to gitwar.log
-      echo "`date "+%Y-%m-%d %H:%M:%S %z"`,$me,$move" >> "$logfile"
+      # echo "`date "+%Y-%m-%d %H:%M:%S %z"`,$me,$move" >> "$logfile"
 
       # submit and wait
-      ../gitwar "$commitMessage
-
-$commitMove"
+      ../gitwar "$commitMessage" "$commitMove"
+      log=`git log --pretty="$logformat" "$githead"..`
 
       # Just got a move from our opponent
-      move=`tail -1 "$logfile" | cut -d, -f3`
+      move=`echo "$log" | head -1 | cut -d, -f3`
       if [[ "$move" = '!' ]]; then
         echo
         echo "CHECKMATE! You win!"
