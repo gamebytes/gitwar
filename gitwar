@@ -44,6 +44,13 @@ function reset {
   git push origin master &> /dev/null
 }
 
+function log {
+  githead=`tail -1 gitwar.games`
+  logformat="%cd,%cn,%N"
+  log=`git log --pretty="$logformat" "$githead"..`
+  echo $log
+}
+
 if [ "$1" = "-w" ]; then
   wait
 elif [ "$1" = "-c" ]; then
@@ -52,6 +59,8 @@ elif [ "$1" = "-s" ]; then
   silentSubmit "$2"
 elif [ "$1" = "-p" ]; then
   silentPull
+elif [ "$1" = "-l" ]; then
+  log
 else
   submitTurn "$1" "$2"
   wait
