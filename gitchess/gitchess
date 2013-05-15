@@ -696,6 +696,7 @@ function loadGame {
 
   # start reading in logfile and perform moves
   while read line; do
+    echo '|'$line'|'
     myLine=`echo "$line" | grep "$me"`
     opponentLine=`echo "$line" | grep "$opponent"`
     if ! [ -z "$myLine" ]; then
@@ -724,6 +725,8 @@ function loadGame {
         echo "CHECKMATE! You win!"
         echo
         exit
+      elif [[ "$move" = "RESET" ]]; then
+        : # noop
       else
         performMove "$move" "$opponentColor"
         if [ "$move" = "invalid" ]; then
@@ -733,6 +736,9 @@ function loadGame {
         fi
       fi
     else
+      echo $line
+      echo $me
+      echo $opponent
       badLogfileSyntax
     fi
     lastMove=$move
@@ -835,10 +841,10 @@ while [[ -z "$move" || "$move" = "invalid" ]]; do
       # submit and wait
       board=`drawBoard "noclear"`
       oldLog=`tail -n +20 gitwar.log`
-      echo "$boardi
+      echo "$board
 $commitMessage
 $oldLog" > gitwar.log
-      ../gitwar "$commitMessage" "$commitMove"
+      ../gitwar "$commitMessage" `echo "$commitMove" | tr "\n" " "`
       log=`git log --pretty="$logformat" "$githead"..`
 
       # Just got a move from our opponent
