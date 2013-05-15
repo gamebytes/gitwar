@@ -843,7 +843,6 @@ while [[ -z "$move" || "$move" = "invalid" ]]; do
       echo "$board
 $commitMessage
 $oldLog" > gitwar.log
-      commitMove=`echo "$commitMove" | tr "\n" " "`
       ../gitwar "$commitMessage" "$commitMove"
       log=`git log --pretty="$logformat" "$githead"..`
 
