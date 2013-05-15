@@ -107,7 +107,6 @@ function getMove {
   while [ -z "$move" ]; do
     drawBoard
     if [[ ! -z "$explanation" ]]; then
-      echo
       echo "$explanation"
       echo
     fi
@@ -410,8 +409,20 @@ function moveKnight {
 }
 
 function rookReady {
+  color=$1
+
   eval ${grid[7]}
-  if [[ ${row[7]} = "ROOK" && "$myColor" = "black" || ${row[7]} = "rook" && "$myColor" = "white" ]]; then
+  rightOfKing=${row[5]}
+  eval ${grid[7]}
+  leftOfRook=${row[6]}
+  if [[ $rightOfKing = "blank" && $leftOfRook = "blank" ]]; then
+    emptySpaceBetween="1"
+  else
+    emptySpaceBetween="0"
+  fi
+
+  eval ${grid[7]}
+  if [[ "$emptySpaceBetween" = 1 && ${row[7]} = "ROOK" && "$color" = "black" || "$emptySpaceBetween" = "1" && ${row[7]} = "rook" && "$color" = "white" ]]; then
     rookReady="1"
   else
     rookReady="0"
@@ -419,9 +430,9 @@ function rookReady {
 }
 
 function moveKing {
-  srcFile=$1; srcRow=$2; targetFile=$3; targetRow=$4
+  srcFile=$1; srcRow=$2; targetFile=$3; targetRow=$4; color=$5
 
-  rookReady
+  rookReady $color
 
   if [[ $srcRow != "7" || $targetRow != "7" || $srcFile != "4" || $targetFile != "6" || $rookReady != "1" ]]; then
     rowDiff=`expr $targetRow - $srcRow`
@@ -546,7 +557,7 @@ function checkState {
         elif [[ "$chessPiece" = "queen" || "$chessPiece" = "QUEEN" ]]; then
           moveQueen $x $y $kingFile $kingRow
         elif [[ "$chessPiece" = "king" || "$chessPiece" = "KING" ]]; then
-          moveKing $x $y $kingFile $kingRow
+          moveKing $x $y $kingFile $kingRow $color
         fi
         if [ "$move" != "invalid" ]; then
           inCheck=1
@@ -637,7 +648,7 @@ function performMove {
     elif [[ "$piece" = "BISHOP" || "$piece" = "bishop" ]]; then
       moveBishop $srcFile $srcRow $targetFile $targetRow
     elif [[ "$piece" = "KING" || "$piece" = "king" ]]; then
-      moveKing $srcFile $srcRow $targetFile $targetRow
+      moveKing $srcFile $srcRow $targetFile $targetRow $color
     elif [[ "$piece" = "QUEEN" || "$piece" = "queen" ]]; then
       moveQueen $srcFile $srcRow $targetFile $targetRow
     fi
@@ -706,8 +717,11 @@ function loadGame {
         echo
         exit
       else
+        testMove=$move
         performMove "$move" "$opponentColor"
         if [ "$move" = "invalid" ]; then
+          echo $explanation
+          echo $testMove
           badLogfileSyntax
         else
           flipBoard
@@ -723,6 +737,7 @@ function loadGame {
   # then it's your opponent's turn and we have to wait
   lastLine=`tail -1 "$logfile" | grep "$me"`
   if ! [ -z "$lastLine" ]; then
+    echo
     echo -n "Looks like it's not your turn. "
     # Call gitwar to wait for opponent
     ../gitwar -w
