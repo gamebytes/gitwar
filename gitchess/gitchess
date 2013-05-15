@@ -81,6 +81,7 @@ function invalidMove {
 horiz="  -----------------------------------------"
 alpha="    A    B    C    D    E    F    G    H"
 function drawBoard {
+  clear
   echo -e "$alpha"
   echo "$horiz"
   for i in {0..7}; do
@@ -104,14 +105,12 @@ function drawBoard {
 
 function getMove {
   while [ -z "$move" ]; do
-    echo "$explanation"
-    if [[ ! -z "$explanation" && "$move" = "invalid" ]]; then
+    drawBoard
+    if [[ ! -z "$explanation" ]]; then
       echo
-      echo "$explantation"
+      echo "$explanation"
       echo
     fi
-    clear
-    drawBoard
     echo -n "Your move: "
     read input
     move=`echo "$input" | grep -oE "(^[a-h][1-8]\s*[a-h][1-8]$|^\!$)"`
@@ -791,6 +790,8 @@ while [[ -z "$move" || "$move" = "invalid" ]]; do
   else
     performMove "$move" "$myColor"
     if [ "$move" != "invalid" ]; then
+      explanation=""
+      drawBoard
       if ! [ -z "$captureMessage" ]; then
         echo
         echo $captureMessage
@@ -800,8 +801,6 @@ while [[ -z "$move" || "$move" = "invalid" ]]; do
       # save to gitwar.log
       echo "`date "+%Y-%m-%d %H:%M:%S %z"`,$me,$move" >> "$logfile"
 
-      echo
-      drawBoard
 
       echo
       ../gitwar "$commitMessage"
