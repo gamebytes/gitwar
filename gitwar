@@ -39,6 +39,7 @@ function reset {
   echo "$githead" >> gitwar.games
   git add gitwar.games &> /dev/null
   git commit -m 'Resetting game' &> /dev/null
+  git notes add -m "RESET"
   git push origin master &> /dev/null
 }
 
