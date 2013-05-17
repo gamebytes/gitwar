@@ -145,7 +145,13 @@ function movePiece {
   eval ${grid[targetRow]}
   target=${row[targetFile]}
   if [ $swapForQueen = "1" ]; then
-    row[$targetFile]="QUEEN"
+    srcBlack=`echo "$src" | grep -Eo "[A-Z]"`
+    if ! [ -z "$srcBlack" ]; then
+      row[$targetFile]="QUEEN"
+    else
+      # white queen
+      row[$targetFile]="queen"
+    fi
   else
     row[$targetFile]=$src
   fi
