@@ -821,7 +821,6 @@ if [[ "$blackDown" = "1" && "$myColor" = "white" ]]; then
   flipBoard
 fi
 echo
-drawBoard
 
 # Game loop
 while [[ -z "$move" || "$move" = "invalid" ]]; do
@@ -841,15 +840,13 @@ while [[ -z "$move" || "$move" = "invalid" ]]; do
         echo
       fi
 
-      # save to gitwar.log
-      # echo "`date "+%Y-%m-%d %H:%M:%S %z"`,$me,$move" >> "$logfile"
-
       # submit and wait
       board=`drawBoard "noclear"`
       oldLog=`tail -n +20 gitwar.log`
       echo "$board
 `date "+%b %d %Y"`: $commitMessage
 $oldLog" > gitwar.log
+
       ../gitwar "$commitMessage" "$commitMove"
       log=`git log --pretty="$logformat" "$githead"..`
 
