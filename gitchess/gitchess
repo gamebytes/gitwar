@@ -709,10 +709,7 @@ function loadGame {
         move=`echo "$line" | cut -d, -f3`
         if [[ "$move" = '!' ]]; then
           drawBoard
-          echo
-          echo "CHECKMATE! $opponent wins!"
-          echo
-          exit
+          checkMate $opponent
         elif [[ "$move" = "RESET" ]]; then
           : # noop
         else
@@ -727,10 +724,7 @@ function loadGame {
         move=`echo "$line" | cut -d, -f3`
         if [[ "$move" = '!' ]]; then
           drawBoard
-          echo
-          echo "CHECKMATE! You win!"
-          echo
-          exit
+          checkMate
         elif [[ "$move" = "RESET" ]]; then
           : # noop
         else
@@ -757,7 +751,6 @@ function loadGame {
     echo -n "Looks like it's not your turn. "
     # Call gitwar to wait for opponent
     ../gitwar -w
-    # log=`git log --pretty="$logformat" "$githead".. | head -n -1 | tac`
     log=`../gitwar -l`
     echo
 
@@ -771,7 +764,15 @@ function loadGame {
   fi
 }
 
-function checkMate {
+function visLog {
+  board=`drawBoard "noclear"`
+  oldLog=`tail -n +20 "$logfile"`
+  echo "$board
+`date "+%b %d %Y"`: $1
+$oldLog" > "$logfile"
+}
+
+function giveUp {
   echo
   echo "GIVE UP!"
   echo
@@ -781,6 +782,17 @@ function checkMate {
 
 !"
 
+  exit
+}
+
+function checkMate {
+  echo
+  if [ -z "$1" ]; then
+    echo "CHECKMATE! You win!"
+  else
+    echo "CHECKMATE! $1 wins!"
+  fi
+  echo
   exit
 }
 
@@ -813,11 +825,8 @@ echo -n "Loading game..."
 ../gitwar -p
 githead=`tail -1 gitwar.games`
 logformat="%cd,%cn,%b"
-# log=`git log --pretty="$logformat" "$githead".. | head -n -1 | tac`
 log=`../gitwar -l`
-# firstLine=`echo "$log" | head -1`
 firstLine=`../gitwar -l -head`
-# lastLine=`echo "$log" | tail -1`
 lastLine=`../gitwar -l -tail`
 loadGame
 if [[ "$blackDown" = "1" && "$myColor" = "white" ]]; then
@@ -830,37 +839,31 @@ while [[ -z "$move" || "$move" = "invalid" ]]; do
   move=""
   getMove
   if [[ "$move" = '!' ]]; then
-    checkMate
+    giveUp
   else
     commitMove=$move
     performMove "$move" "$myColor"
+
+    # how do we continue if the move finished
+    # if move = "invalid" we go back to the loop and
+    # prompt the user for a different move
     if [ "$move" != "invalid" ]; then
       explanation=""
       drawBoard
       if ! [ -z "$captureMessage" ]; then
-        echo
-        echo $captureMessage
-        echo
+        echo $captureMessage; echo
       fi
 
       # submit and wait
-      board=`drawBoard "noclear"`
-      oldLog=`tail -n +20 gitwar.log`
-      echo "$board
-`date "+%b %d %Y"`: $commitMessage
-$oldLog" > gitwar.log
+      visLog $commitMessage
 
       ../gitwar "$commitMessage" "$commitMove"
-      # log=`git log --pretty="$logformat" "$githead".. | head -n -1 | tac`
       log=`../gitwar -l`
 
       # Just got a move from our opponent
       move=`echo "$log" | tail -1 | cut -d, -f3`
       if [[ "$move" = '!' ]]; then
-        echo
-        echo "CHECKMATE! You win!"
-        echo
-        exit
+        checkMate
       else
         flipBoard
         color=$opponentColor
