@@ -757,7 +757,8 @@ function loadGame {
     echo -n "Looks like it's not your turn. "
     # Call gitwar to wait for opponent
     ../gitwar -w
-    log=`git log --pretty="$logformat" "$githead".. | head -n -1 | tac`
+    # log=`git log --pretty="$logformat" "$githead".. | head -n -1 | tac`
+    log=`../gitwar -l`
     echo
 
     move=`echo "$log" | tail -1 | cut -d, -f3`
@@ -776,7 +777,6 @@ function checkMate {
   echo
   echo "Sending data..."
 
-  echo "`date "+%Y-%m-%d %H:%M:%S %z"`,$me,!" >> "$logfile"
   ../gitwar -s "$me gave up!
 
 !"
@@ -813,9 +813,12 @@ echo -n "Loading game..."
 ../gitwar -p
 githead=`tail -1 gitwar.games`
 logformat="%cd,%cn,%b"
-log=`git log --pretty="$logformat" "$githead".. | head -n -1 | tac`
-firstLine=`echo "$log" | head -1`
-lastLine=`echo "$log" | tail -1`
+# log=`git log --pretty="$logformat" "$githead".. | head -n -1 | tac`
+log=`../gitwar -l`
+# firstLine=`echo "$log" | head -1`
+firstLine=`../gitwar -l -head`
+# lastLine=`echo "$log" | tail -1`
+lastLine=`../gitwar -l -tail`
 loadGame
 if [[ "$blackDown" = "1" && "$myColor" = "white" ]]; then
   flipBoard
@@ -848,7 +851,8 @@ while [[ -z "$move" || "$move" = "invalid" ]]; do
 $oldLog" > gitwar.log
 
       ../gitwar "$commitMessage" "$commitMove"
-      log=`git log --pretty="$logformat" "$githead".. | head -n -1 | tac`
+      # log=`git log --pretty="$logformat" "$githead".. | head -n -1 | tac`
+      log=`../gitwar -l`
 
       # Just got a move from our opponent
       move=`echo "$log" | tail -1 | cut -d, -f3`

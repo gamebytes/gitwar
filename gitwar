@@ -45,11 +45,23 @@ RESET' &> /dev/null
   git push origin master &> /dev/null
 }
 
+logformat="%cd,%cn,%b"
 function log {
   githead=`tail -1 gitwar.games`
-  logformat="%cd,%cn,%b"
-  log=`git log --pretty="$logformat" "$githead"..`
+  log=`git log --pretty="$logformat" "$githead".. | head -n -1 | tac`
   echo "$log"
+}
+
+function firstLogLine {
+  githead=`tail -1 gitwar.games`
+  log=`git log --pretty="$logformat" "$githead".. | head -n -1 | tac`
+  echo "$log" | head -1
+}
+
+function lastLogLine {
+  githead=`tail -1 gitwar.games`
+  log=`git log --pretty="$logformat" "$githead".. | head -n -1 | tac`
+  echo "$log" | tail -1
 }
 
 if [ "$1" = "-w" ]; then
@@ -61,7 +73,13 @@ elif [ "$1" = "-s" ]; then
 elif [ "$1" = "-p" ]; then
   silentPull
 elif [ "$1" = "-l" ]; then
-  log
+  if [ "$2" = "-head" ]; then
+    firstLogLine
+  elif [ "$2" = "-tail" ]; then
+    lastLogLine
+  else
+    log
+  fi
 else
   submitTurn "$1" "$2"
   wait
