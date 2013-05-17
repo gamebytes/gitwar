@@ -848,7 +848,7 @@ while [[ -z "$move" || "$move" = "invalid" ]]; do
       board=`drawBoard "noclear"`
       oldLog=`tail -n +20 gitwar.log`
       echo "$board
-$commitMessage
+`date +%b %d %Y`: $commitMessage
 $oldLog" > gitwar.log
       ../gitwar "$commitMessage" "$commitMove"
       log=`git log --pretty="$logformat" "$githead"..`
