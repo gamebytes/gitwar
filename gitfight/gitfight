@@ -194,7 +194,7 @@ function loop {
     # Call gitwar to give opponent a turn
     getRecentEvent
     checkGameOver
-    ../gitwar "$recentEvent"
+    ../gitwar "$recentEvent" "$attack"
     log=`../gitwar -l`
 
     echo
@@ -270,7 +270,7 @@ else
   # Call gitwar to give opponent a turn
   getRecentEvent
   checkGameOver
-  ../gitwar "$recentEvent"
+  ../gitwar "$recentEvent" "$attack"
   log=`../gitwar -l`
 
   echo
