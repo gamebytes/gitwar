@@ -17,34 +17,38 @@ Git, shell scripting, and playing games has never been so... weird.
 1. Fork this repo
 2. Add a friend as a collaborator
 3. CD into the game you want to play
-4. Run the executable: `./gitfight`
+4. Run the executable
 5. Submit your first turn, and wait for your friend to submit theirs.
 
 ## Writing games
 
-Here's what's needed to write a Gitwar game:
+The gitwar script is actually very dumb about
+what's going on in the game. It just adds files, commits, pushes,
+pulls, and spits out a log. Normal git stuff. The game script can be pretty much anything you want.
 
-**Nothing.** The gitwar script is actually very dumb about
-what's going on in the game. It just adds files, commits, pushes, and
-pulls. Normal git stuff.
+Here's the best way to use gitwar when commiting an action:
 
-The game script can be pretty much anything you want. Just remember to
-use `../gitwar <commit message here>` to submit a turn and wait for your
-opponent.
+```bash
+getPlayerMove
+executeMove
+../gitwar "$human_readable_commit_message" "$machine_readable_action"
+```
 
-## Gitfight-style
+Reading the log:
 
-Here's what you will need if you want your game to be anything like
-gitfight:
+```bash
+log=`../gitwar -l`
+# loop over the log to recreate
+while read line; do
+  action=`echo "$log" | cut -d, -f3`
+  # recreate all past actions
+done < <(echo "$log")
+```
 
-1. gitwar.log - gitfight can replay the entire game sequence so leaving the game
-   and re-entering is a breeze.
-2. gitwar.users - gitfight uses this file to make sure your
-   gitconfig's user.name is on the list of players
-3. The rest of it: theme, user-input, scoring system, algorithms are all
-   up to you.
+It might also be nice to include a file just to save users' names and
+properties. See `gitwar.users` in either gitfight or gitchess.
 
-Make sure you send a pull request when you're done so everyone can enjoy it.
+Make sure you send a pull request with your new game when you're done so everyone can enjoy it.
 
 ## Note
 
