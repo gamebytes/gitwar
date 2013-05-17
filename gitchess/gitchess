@@ -757,10 +757,10 @@ function loadGame {
     echo -n "Looks like it's not your turn. "
     # Call gitwar to wait for opponent
     ../gitwar -w
-    log=`git log --pretty="$logformat" "$githead"..`
+    log=`git log --pretty="$logformat" "$githead".. | head -n -1 | tac`
     echo
 
-    move=`echo "$log" | head -1 | cut -d, -f3`
+    move=`echo "$log" | tail -1 | cut -d, -f3`
     # Don't need to flipboard before the move because we already
     # flipped after we processed our last move
     color=$opponentColor
@@ -848,10 +848,10 @@ while [[ -z "$move" || "$move" = "invalid" ]]; do
 $oldLog" > gitwar.log
 
       ../gitwar "$commitMessage" "$commitMove"
-      log=`git log --pretty="$logformat" "$githead"..`
+      log=`git log --pretty="$logformat" "$githead".. | head -n -1 | tac`
 
       # Just got a move from our opponent
-      move=`echo "$log" | head -1 | cut -d, -f3`
+      move=`echo "$log" | tail -1 | cut -d, -f3`
       if [[ "$move" = '!' ]]; then
         echo
         echo "CHECKMATE! You win!"
