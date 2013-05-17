@@ -866,7 +866,6 @@ $oldLog" > gitwar.log
         performMove "$move" "$opponentColor"
         flipBoard
         move=""
-        drawBoard
       fi
     fi
   fi
