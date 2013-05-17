@@ -45,7 +45,7 @@ while read line; do
 done < <(echo "$log")
 ```
 
-It might also be nice to include a file just to save users' names and
+I also suggest having a file for each users' name and
 properties. See `gitwar.users` in either gitfight or gitchess.
 
 Make sure you send a pull request with your new game when you're done so everyone can enjoy it.
